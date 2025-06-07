@@ -414,12 +414,6 @@ const ProfileScreen: React.FC = () => {
                   </Text>
                 </View>
 
-                {/* Debug info - remove this later */}
-                <View style={styles.userInfo}>
-                  <Text style={styles.label}>Debug - Auth emailVerified:</Text>
-                  <Text style={styles.value}>{String(user.emailVerified)}</Text>
-                </View>
-
                 <View style={styles.userInfo}>
                   <Text style={styles.label}>Member Since:</Text>
                   <Text style={styles.value}>
@@ -434,14 +428,30 @@ const ProfileScreen: React.FC = () => {
             ) : (
               <Text style={styles.subtitle}>Loading user information...</Text>
             )}
-
             <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={[styles.button, styles.editButton]}
-                onPress={handleEditProfile}
-              >
-                <Text style={styles.editButtonText}>Edit Profile</Text>
-              </TouchableOpacity>
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    styles.editButton,
+                    styles.halfWidthButton,
+                  ]}
+                  onPress={handleEditProfile}
+                >
+                  <Text style={styles.editButtonText}>Edit</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.button,
+                    styles.signOutButton,
+                    styles.halfWidthButton,
+                  ]}
+                  onPress={handleSignOut}
+                >
+                  <Text style={styles.signOutButtonText}>Sign Out</Text>
+                </TouchableOpacity>
+              </View>
 
               {!user?.emailVerified && (
                 <TouchableOpacity
@@ -453,13 +463,6 @@ const ProfileScreen: React.FC = () => {
                   </Text>
                 </TouchableOpacity>
               )}
-
-              <TouchableOpacity
-                style={[styles.button, styles.signOutButton]}
-                onPress={handleSignOut}
-              >
-                <Text style={styles.signOutButtonText}>Sign Out</Text>
-              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
@@ -628,11 +631,19 @@ const styles = StyleSheet.create({
   buttonContainer: {
     gap: 12,
   },
+  buttonRow: {
+    flexDirection: "row",
+    gap: 12,
+    justifyContent: "space-between",
+  },
   button: {
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: theme.borderRadius.small,
     alignItems: "center",
+  },
+  halfWidthButton: {
+    flex: 1, // This makes both buttons take equal width
   },
   editButton: {
     backgroundColor: theme.colors.primary,
@@ -664,6 +675,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
+
   // iOS Date Picker Styles
   iosDatePickerOverlay: {
     flex: 1,

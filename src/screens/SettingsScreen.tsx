@@ -48,23 +48,6 @@ const SettingsScreen: React.FC = () => {
             <View style={styles.settingItem}>
               <View style={styles.settingInfo}>
                 <Icon
-                  name="moon-outline"
-                  size={24}
-                  color={theme.colors.primary}
-                />
-                <Text style={styles.settingText}>Dark Mode</Text>
-              </View>
-              <Switch
-                value={darkMode}
-                onValueChange={setDarkMode}
-                trackColor={{ false: "#767577", true: theme.colors.primary }}
-                thumbColor="#f4f3f4"
-              />
-            </View>
-
-            <View style={styles.settingItem}>
-              <View style={styles.settingInfo}>
-                <Icon
                   name="location-outline"
                   size={24}
                   color={theme.colors.primary}
@@ -78,13 +61,6 @@ const SettingsScreen: React.FC = () => {
                 thumbColor="#f4f3f4"
               />
             </View>
-          </View>
-
-          <View style={styles.settingsSection}>
-            <Text style={styles.sectionTitle}>Account</Text>
-            <Text style={styles.subtitle}>
-              Options for managing your account will appear here.
-            </Text>
           </View>
         </ScrollView>
       </View>

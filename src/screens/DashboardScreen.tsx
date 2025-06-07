@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { theme } from "../constants/theme";
 import VehicleIcon from "../components/common/VehicleIcon";
-// import Background from "../components/common/Background";
+import Background from "../components/common/Background"; // Uncomment this
 import { useCurrentLocation } from "../hooks/location";
 // import MapboxGL from "@rnmapbox/maps";
 
@@ -14,60 +14,44 @@ const DashboardScreen: React.FC = () => {
   const { location, errorMsg } = useCurrentLocation();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.logoContainer}>
-          <VehicleIcon
-            width={theme.logoDashboard.width}
-            height={theme.logoDashboard.height}
-            color={theme.colors.primary}
-          />
+    <Background>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.logoContainer}>
+            <VehicleIcon
+              width={theme.logoDashboard.width}
+              height={theme.logoDashboard.height}
+              color="#003893"
+            />
+          </View>
         </View>
+        <Text style={styles.sectionTitle}>Dashboard Screen</Text>
       </View>
-      <Text style={styles.sectionTitle}>Dashboard Screen</Text>
-    </View>
-    // <Background>
+    </Background>
+    // <LinearGradient
+    //   colors={["#003893", "#0056D6", "#007BFF"]}
+    //   style={styles.gradientContainer}
+    //   start={{ x: 0, y: 0 }}
+    //   end={{ x: 1, y: 1 }}
+    // >
     //   <View style={styles.container}>
     //     <View style={styles.header}>
     //       <View style={styles.logoContainer}>
     //         <VehicleIcon
     //           width={theme.logoDashboard.width}
     //           height={theme.logoDashboard.height}
-    //           color={theme.colors.primary}
+    //           color="#FFFFFF" // Changed to white for better contrast on gradient
     //         />
     //       </View>
     //     </View>
-    //     <View style={styles.mapContainer}>
-    //       {errorMsg ? (
-    //         <Text style={styles.errorText}>{errorMsg}</Text>
-    //       ) : location ? (
-    //         <MapboxGL.MapView style={styles.map}>
-    //           <MapboxGL.Camera
-    //             zoomLevel={15}
-    //             centerCoordinate={[
-    //               location.coords.longitude,
-    //               location.coords.latitude,
-    //             ]}
-    //           />
-    //           <MapboxGL.PointAnnotation
-    //             id="userLocation"
-    //             coordinate={[
-    //               location.coords.longitude,
-    //               location.coords.latitude,
-    //             ]}
-    //           >
-    //             <View />
-    //           </MapboxGL.PointAnnotation>
-    //         </MapboxGL.MapView>
-    //       ) : (
-    //         <Text style={styles.label}>Getting location...</Text>
-    //       )}
-    //     </View>
+    //     <Text style={styles.sectionTitle}>Dashboard Screen</Text>
     //   </View>
-    // </Background>
+    // </LinearGradient>
   );
 };
+
 const styles = StyleSheet.create({
+  // Remove gradientContainer since Background handles it
   container: {
     flex: 1,
     backgroundColor: "transparent",
@@ -94,7 +78,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginTop: 20,
-    color: theme.colors.primary,
+    color: "#003893", 
   },
   mapContainer: {
     flex: 1,
@@ -112,10 +96,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 8,
-    color: theme.colors.primary,
+    color: "#FFFFFF", // Keep white
+    textShadowColor: "rgba(0, 0, 0, 0.3)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 2,
   },
   errorText: {
-    color: "red",
+    color: "#FFE6E6", // Light red for better contrast on gradient
     fontSize: 16,
   },
 });
