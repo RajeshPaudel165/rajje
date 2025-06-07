@@ -9,6 +9,8 @@ import {
   Modal,
   FlatList,
   Platform,
+  useColorScheme,
+  StatusBar,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { theme } from "../constants/theme";
@@ -29,8 +31,9 @@ const ProfileScreen: React.FC = () => {
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0); // Add refresh key for forced updates
+  const [refreshKey, setRefreshKey] = useState(0);
   const navigation = useNavigation();
+  const colorScheme = useColorScheme;
 
   useEffect(() => {
     // Get current user when component mounts
@@ -215,8 +218,15 @@ const ProfileScreen: React.FC = () => {
     </TouchableOpacity>
   );
 
+  
+
   return (
     <Background>
+      <StatusBar
+        barStyle="dark-content"
+        backgroundColor="transparent"
+        translucent
+      />
       <View style={styles.container} key={refreshKey}>
         <View style={styles.header}>
           <View style={styles.logoContainer}>
@@ -317,10 +327,12 @@ const ProfileScreen: React.FC = () => {
           <DateTimePicker
             value={userProfile.dateOfBirth || new Date(2000, 0, 1)}
             mode="date"
-            display="default"
+            display="spinner"
             onChange={handleDateChange}
             maximumDate={new Date()}
             minimumDate={new Date(1950, 0, 1)}
+            style={styles.iosDatePicker}
+            textColor="#000000"
           />
         )}
 
@@ -342,6 +354,7 @@ const ProfileScreen: React.FC = () => {
                     </Text>
                   </TouchableOpacity>
                 </View>
+
                 <DateTimePicker
                   value={userProfile.dateOfBirth || new Date(2000, 0, 1)}
                   mode="date"
@@ -350,6 +363,8 @@ const ProfileScreen: React.FC = () => {
                   maximumDate={new Date()}
                   minimumDate={new Date(1950, 0, 1)}
                   style={styles.iosDatePicker}
+                  textColor="#000000"
+                  accentColor={theme.colors.primary}
                 />
               </View>
             </View>
@@ -416,7 +431,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   profileSection: {
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    backgroundColor: "#FFFFFF", // Solid white background instead of transparent
     borderRadius: theme.borderRadius.medium,
     padding: 20,
     marginBottom: 16,
@@ -434,7 +449,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: theme.colors.text,
+    color: "#333333", // Explicit dark color instead of theme color
     lineHeight: 22,
   },
   userInfoContainer: {
@@ -451,12 +466,12 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: "600",
-    color: theme.colors.text,
+    color: "#2C3E50", // Explicit dark color for better visibility
     flex: 1,
   },
   value: {
     fontSize: 16,
-    color: theme.colors.subText,
+    color: "#5A6C7D", // Explicit color instead of theme
     flex: 2,
     textAlign: "right",
   },
@@ -483,7 +498,7 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.primary,
   },
   editButtonText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
   },
@@ -493,7 +508,7 @@ const styles = StyleSheet.create({
     borderColor: "#dc3545",
   },
   signOutButtonText: {
-    color: "#fff",
+    color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
   },
@@ -504,7 +519,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   iosDatePickerContainer: {
-    backgroundColor: "white",
+    backgroundColor: "#FFFFFF", // Solid white background
     borderTopLeftRadius: theme.borderRadius.large,
     borderTopRightRadius: theme.borderRadius.large,
     paddingBottom: 20,
@@ -516,6 +531,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0, 56, 147, 0.2)",
+    backgroundColor: "#FFFFFF", // Ensure solid background
   },
   iosDatePickerTitle: {
     fontSize: 18,
@@ -531,7 +547,8 @@ const styles = StyleSheet.create({
   },
   iosDatePicker: {
     height: 200,
-    backgroundColor: "white",
+    backgroundColor: "#FFFFFF",
+    color: "#000000",
   },
   // City Dropdown Styles
   modalOverlay: {
@@ -540,7 +557,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   dropdownModal: {
-    backgroundColor: "white",
+    backgroundColor: "#FFFFFF",
     borderTopLeftRadius: theme.borderRadius.large,
     borderTopRightRadius: theme.borderRadius.large,
     maxHeight: "60%",
@@ -549,6 +566,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    color: "#000000",
   },
   dropdownHeader: {
     flexDirection: "row",
@@ -557,6 +575,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0, 56, 147, 0.2)",
+    backgroundColor: "#FFFFFF", // Ensure solid background
   },
   dropdownTitle: {
     fontSize: 20,
@@ -565,12 +584,13 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     fontSize: 20,
-    color: theme.colors.subText,
+    color: "#666666", // Explicit color for better visibility
     fontWeight: "600",
     paddingHorizontal: 8,
   },
   dropdownList: {
     maxHeight: 300,
+    backgroundColor: "#FFFFFF", // Solid background
   },
   dropdownItem: {
     flexDirection: "row",
@@ -580,10 +600,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     borderBottomWidth: 1,
     borderBottomColor: "rgba(0, 56, 147, 0.1)",
+    backgroundColor: "#FFFFFF", // Ensure each item has solid background
   },
   dropdownItemText: {
     fontSize: 16,
-    color: theme.colors.text,
+    color: "#2C3E50", // Explicit dark color for better visibility
     flex: 1,
   },
   selectedIndicator: {

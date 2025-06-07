@@ -1,8 +1,8 @@
 export default ({ config }) => {
   return {
-    ...config, 
-    name: "myapp", 
-    slug: "myapp", 
+    ...config,
+    name: "myapp",
+    slug: "myapp",
     extra: {
       FIREBASE_API_KEY: process.env.FIREBASE_API_KEY,
       FIREBASE_AUTH_DOMAIN: process.env.FIREBASE_AUTH_DOMAIN,
@@ -24,12 +24,14 @@ export default ({ config }) => {
       resizeMode: "contain",
       backgroundColor: "#ffffff",
     },
-    ios:{
+    ios: {
       bundleIdentifier: "com.nabin-777.myapp",
       supportsTablet: true,
+      supportsTablet: true,
+      userInterfaceStyle: "light",
       deploymentTarget: "18.5",
       config: {
-        googleMapsApiKey: "YOUR_IOS_API_KEY", 
+        googleMapsApiKey: "YOUR_IOS_API_KEY",
       },
     },
     android: {
