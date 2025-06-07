@@ -3,12 +3,17 @@ import {
   View,
   Text,
   StyleSheet,
-  ScrollView,
+  Dimensions,
 } from "react-native";
 import { theme } from "../constants/theme";
 import VehicleIcon from "../components/common/VehicleIcon";
 import Background from "../components/common/Background";
 import { useCurrentLocation } from "../hooks/location";
+import MapboxGL from "@rnmapbox/maps";
+
+MapboxGL.setAccessToken(process.env.MAPBOX_ACCESS_TOKEN);
+
+const { width, height } = Dimensions.get("window");
 
 const DashboardScreen: React.FC = () => {
   const { location, errorMsg } = useCurrentLocation();
@@ -25,26 +30,32 @@ const DashboardScreen: React.FC = () => {
             />
           </View>
         </View>
-
-        <ScrollView style={styles.content}>
-          <View style={styles.locationContainer}>
-            {errorMsg ? (
-              <Text style={styles.errorText}>{errorMsg}</Text>
-            ) : location ? (
-              <>
-                <Text style={styles.label}>Your Location:</Text>
-                <Text style={styles.locationText}>
-                  Latitude: {location.coords.latitude}
-                </Text>
-                <Text style={styles.locationText}>
-                  Longitude: {location.coords.longitude}
-                </Text>
-              </>
-            ) : (
-              <Text style={styles.label}>Getting location...</Text>
-            )}
-          </View>
-        </ScrollView>
+        <View style={styles.mapContainer}>
+          {errorMsg ? (
+            <Text style={styles.errorText}>{errorMsg}</Text>
+          ) : location ? (
+            <MapboxGL.MapView style={styles.map}>
+              <MapboxGL.Camera
+                zoomLevel={15}
+                centerCoordinate={[
+                  location.coords.longitude,
+                  location.coords.latitude,
+                ]}
+              />
+              <MapboxGL.PointAnnotation
+                id="userLocation"
+                coordinate={[
+                  location.coords.longitude,
+                  location.coords.latitude,
+                ]}
+              >
+                <View />{/* Required child, can be customized */}
+              </MapboxGL.PointAnnotation>
+            </MapboxGL.MapView>
+          ) : (
+            <Text style={styles.label}>Getting location...</Text>
+          )}
+        </View>
       </View>
     </Background>
   );
@@ -72,27 +83,23 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.05 }],
     marginLeft: 2,
   },
-  content: {
+  mapContainer: {
     flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 80,
-  },
-  locationContainer: {
-    marginTop: 32,
     alignItems: "center",
     justifyContent: "center",
+    marginTop: 16,
+  },
+  map: {
+    width: width - 32,
+    height: height * 0.6,
+    borderRadius: 12,
+    overflow: "hidden",
   },
   label: {
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 8,
     color: theme.colors.primary,
-  },
-  locationText: {
-    fontSize: 16,
-    marginBottom: 4,
-    color: "#333",
   },
   errorText: {
     color: "red",
