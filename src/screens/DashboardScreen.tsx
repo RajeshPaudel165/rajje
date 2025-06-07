@@ -11,8 +11,10 @@ import { theme } from "../constants/theme";
 import VehicleIcon from "../components/common/VehicleIcon";
 import Background from "../components/common/Background";
 import Icon from "react-native-vector-icons/Ionicons";
+import { useCurrentLocation } from "../hooks/location";
 
 const DashboardScreen: React.FC = () => {
+  const { location, errorMsg } = useCurrentLocation();
   return (
     <Background>
       <View style={styles.container}>
