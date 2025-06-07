@@ -7,20 +7,26 @@ import {
   StyleSheet,
   ScrollView,
   Alert,
+  Modal,
 } from "react-native";
 import { theme } from "../../constants/theme";
 import { globalStyles, CARD_WIDTH } from "../../styles/styles";
-import {auth} from "../../firebase";
-import { sendEmailVerification, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
+import {
+  sendEmailVerification,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
+import PasswordRecoveryWrapper from "./PasswordRecoveryWrapper";
 
 interface FormProps {
-  onSubmit: () => void;
+  onSubmit: Function;
 }
 
 const Form: React.FC<FormProps> = ({ onSubmit }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordRecovery, setShowPasswordRecovery] = useState(false);
   const [errors, setErrors] = useState({
     email: "",
     password: "",
@@ -55,103 +61,139 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
     return isValid;
   };
 
+  const handlePasswordRecovery = () => {
+    setShowPasswordRecovery(true);
+  };
+
   const handleLogin = async () => {
     if (validateForm()) {
-      // Here you would typically call your API to authenticate the user
-      // For now, we'll just call the onSubmit callback for the animation
       try {
-        const userCredential = await signInWithEmailAndPassword(auth,email, password);
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password
+        );
         console.log("Login successful:", userCredential.user);
-        if(!userCredential.user.emailVerified) {
-          await auth.signout();
+        if (!userCredential.user.emailVerified) {
+          await auth.signOut();
           sendEmailVerification(userCredential.user);
-          Alert.alert("Email Verification", "Please verify your email before logging in.");
+          Alert.alert(
+            "Email Verification",
+            "Please verify your email before logging in."
+          );
           return;
         }
         onSubmit();
       } catch (error) {
         console.log("Login error:", error);
-        Alert.alert("Login Failed", "Please check your credentials and try again.");
+        Alert.alert(
+          "Login Failed",
+          "Please check your credentials and try again."
+        );
       }
     }
   };
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.scrollContainer}
-      showsVerticalScrollIndicator={false}
-      keyboardShouldPersistTaps="handled"
-    >
-      <View style={[globalStyles.card, styles.card]}>
-        <Text style={styles.formTitle}>Sign In</Text>
-        <View style={styles.separator} />
+    <>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={[globalStyles.card, styles.card]}>
+          <Text style={styles.formTitle}>Sign In</Text>
+          <View style={styles.separator} />
 
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Email</Text>
-          <TextInput
-            style={[
-              globalStyles.textInput,
-              errors.email ? styles.inputError : null,
-            ]}
-            placeholder="Enter your email"
-            value={email}
-            onChangeText={(text) => {
-              setEmail(text);
-              if (errors.email) setErrors({ ...errors, email: "" });
-            }}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            placeholderTextColor={theme.colors.subText}
-          />
-          {errors.email ? (
-            <Text style={styles.errorText}>{errors.email}</Text>
-          ) : null}
-        </View>
-
-        <View style={styles.inputContainer}>
-          <Text style={styles.inputLabel}>Password</Text>
-          <View style={styles.passwordInputWrapper}>
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Email</Text>
             <TextInput
               style={[
                 globalStyles.textInput,
-                errors.password ? styles.inputError : null,
+                errors.email ? styles.inputError : null,
               ]}
-              placeholder="Enter your password"
-              value={password}
+              placeholder="Enter your email"
+              value={email}
               onChangeText={(text) => {
-                setPassword(text);
-                if (errors.password) setErrors({ ...errors, password: "" });
+                setEmail(text);
+                if (errors.email) setErrors({ ...errors, email: "" });
               }}
-              secureTextEntry={!showPassword}
+              keyboardType="email-address"
+              autoCapitalize="none"
               placeholderTextColor={theme.colors.subText}
             />
+            {errors.email ? (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            ) : null}
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.inputLabel}>Password</Text>
+            <View style={styles.passwordInputWrapper}>
+              <TextInput
+                style={[
+                  globalStyles.textInput,
+                  errors.password ? styles.inputError : null,
+                ]}
+                placeholder="Enter your password"
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (errors.password) setErrors({ ...errors, password: "" });
+                }}
+                secureTextEntry={!showPassword}
+                placeholderTextColor={theme.colors.subText}
+              />
+              <TouchableOpacity
+                style={styles.visibilityToggle}
+                onPress={() => setShowPassword(!showPassword)}
+              >
+                <Text style={styles.visibilityToggleText}>
+                  {showPassword ? "Hide" : "Show"}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            {errors.password ? (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            ) : null}
+          </View>
+
+          <TouchableOpacity
+            style={styles.forgotPasswordButton}
+            onPress={handlePasswordRecovery}
+          >
+            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={globalStyles.button} onPress={handleLogin}>
+            <Text style={globalStyles.buttonText}>Login</Text>
+          </TouchableOpacity>
+
+          <Text style={styles.copyright}>
+            © 2025 @kampanlabs. All rights reserved.
+          </Text>
+        </View>
+      </ScrollView>
+
+      <Modal
+        visible={showPasswordRecovery}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowPasswordRecovery(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
             <TouchableOpacity
-              style={styles.visibilityToggle}
-              onPress={() => setShowPassword(!showPassword)}
+              style={styles.closeButton}
+              onPress={() => setShowPasswordRecovery(false)}
             >
-              <Text style={styles.visibilityToggleText}>
-                {showPassword ? "Hide" : "Show"}
-              </Text>
+              <Text style={styles.closeButtonText}>✕ Close</Text>
             </TouchableOpacity>
           </View>
-          {errors.password ? (
-            <Text style={styles.errorText}>{errors.password}</Text>
-          ) : null}
+          <PasswordRecoveryWrapper />
         </View>
-
-        <TouchableOpacity style={styles.forgotPasswordButton}>
-          <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={globalStyles.button} onPress={handleLogin}>
-          <Text style={globalStyles.buttonText}>Login</Text>
-        </TouchableOpacity>
-
-        <Text style={styles.copyright}>
-          © 2025 @kompanlabs. All rights reserved.
-        </Text>
-      </View>
-    </ScrollView>
+      </Modal>
+    </>
   );
 };
 
@@ -159,7 +201,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     flexGrow: 1,
     alignItems: "center",
-    paddingVertical: 30, // Increased from 20 to give more space
+    paddingVertical: 30,
   },
   card: {
     width: CARD_WIDTH,
@@ -225,6 +267,26 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: theme.colors.subText,
     textAlign: "center",
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: theme.colors.background,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    padding: 16,
+    paddingTop: 50,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0, 56, 147, 0.2)",
+  },
+  closeButton: {
+    padding: 8,
+  },
+  closeButtonText: {
+    color: theme.colors.primary,
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 
