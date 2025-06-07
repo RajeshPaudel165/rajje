@@ -1,17 +1,12 @@
 import React from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-} from "react-native";
+import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { theme } from "../constants/theme";
 import VehicleIcon from "../components/common/VehicleIcon";
-import Background from "../components/common/Background";
+// import Background from "../components/common/Background";
 import { useCurrentLocation } from "../hooks/location";
-import MapboxGL from "@rnmapbox/maps";
+// import MapboxGL from "@rnmapbox/maps";
 
-MapboxGL.setAccessToken(process.env.MAPBOX_ACCESS_TOKEN);
+// MapboxGL.setAccessToken(process.env.MAPBOX_ACCESS_TOKEN);
 
 const { width, height } = Dimensions.get("window");
 
@@ -19,48 +14,59 @@ const DashboardScreen: React.FC = () => {
   const { location, errorMsg } = useCurrentLocation();
 
   return (
-    <Background>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <VehicleIcon
-              width={theme.logoDashboard.width}
-              height={theme.logoDashboard.height}
-              color={theme.colors.primary}
-            />
-          </View>
-        </View>
-        <View style={styles.mapContainer}>
-          {errorMsg ? (
-            <Text style={styles.errorText}>{errorMsg}</Text>
-          ) : location ? (
-            <MapboxGL.MapView style={styles.map}>
-              <MapboxGL.Camera
-                zoomLevel={15}
-                centerCoordinate={[
-                  location.coords.longitude,
-                  location.coords.latitude,
-                ]}
-              />
-              <MapboxGL.PointAnnotation
-                id="userLocation"
-                coordinate={[
-                  location.coords.longitude,
-                  location.coords.latitude,
-                ]}
-              >
-                <View />{/* Required child, can be customized */}
-              </MapboxGL.PointAnnotation>
-            </MapboxGL.MapView>
-          ) : (
-            <Text style={styles.label}>Getting location...</Text>
-          )}
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.logoContainer}>
+          <VehicleIcon
+            width={theme.logoDashboard.width}
+            height={theme.logoDashboard.height}
+            color={theme.colors.primary}
+          />
         </View>
       </View>
-    </Background>
+      <Text style={styles.sectionTitle}>Dashboard Screen</Text>
+    </View>
+    // <Background>
+    //   <View style={styles.container}>
+    //     <View style={styles.header}>
+    //       <View style={styles.logoContainer}>
+    //         <VehicleIcon
+    //           width={theme.logoDashboard.width}
+    //           height={theme.logoDashboard.height}
+    //           color={theme.colors.primary}
+    //         />
+    //       </View>
+    //     </View>
+    //     <View style={styles.mapContainer}>
+    //       {errorMsg ? (
+    //         <Text style={styles.errorText}>{errorMsg}</Text>
+    //       ) : location ? (
+    //         <MapboxGL.MapView style={styles.map}>
+    //           <MapboxGL.Camera
+    //             zoomLevel={15}
+    //             centerCoordinate={[
+    //               location.coords.longitude,
+    //               location.coords.latitude,
+    //             ]}
+    //           />
+    //           <MapboxGL.PointAnnotation
+    //             id="userLocation"
+    //             coordinate={[
+    //               location.coords.longitude,
+    //               location.coords.latitude,
+    //             ]}
+    //           >
+    //             <View />
+    //           </MapboxGL.PointAnnotation>
+    //         </MapboxGL.MapView>
+    //       ) : (
+    //         <Text style={styles.label}>Getting location...</Text>
+    //       )}
+    //     </View>
+    //   </View>
+    // </Background>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -82,6 +88,13 @@ const styles = StyleSheet.create({
   logoContainer: {
     transform: [{ scale: 1.05 }],
     marginLeft: 2,
+  },
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 20,
+    color: theme.colors.primary,
   },
   mapContainer: {
     flex: 1,

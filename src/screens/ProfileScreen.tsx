@@ -14,21 +14,29 @@ import {
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { theme } from "../constants/theme";
-import { globalStyles } from "../styles/styles";
 import VehicleIcon from "../components/common/VehicleIcon";
 import Background from "../components/common/Background";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { signOut, User, updateProfile, reload } from "firebase/auth";
+import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 
 const cities = ["Kathmandu", "Pokhara", "Bharatpur", "Nepalgunj", "Birgunj"];
 
+interface UserProfile {
+  dateOfBirth: Date | null;
+  city: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
 const ProfileScreen: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState({
-    dateOfBirth: null as Date | null,
-    address: "",
+  const [userProfile, setUserProfile] = useState<UserProfile>({
+    dateOfBirth: null,
+    city: "",
   });
+  const [loading, setLoading] = useState(true);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -36,28 +44,131 @@ const ProfileScreen: React.FC = () => {
   const colorScheme = useColorScheme;
 
   useEffect(() => {
-    // Get current user when component mounts
-    const currentUser = auth.currentUser;
-    setUser(currentUser);
-
     // Listen for auth state changes
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      setUser(user);
+    const unsubscribe = auth.onAuthStateChanged(async (user) => {
+      if (user) {
+        // Reload user to get latest email verification status
+        await reload(user);
+        setUser(user);
+        await loadUserProfile(user.uid);
+      } else {
+        setUser(null);
+        setUserProfile({ dateOfBirth: null, city: "" });
+      }
+      setLoading(false);
     });
-
-    // Load additional user profile data
-    loadUserProfile();
 
     return () => unsubscribe();
   }, []);
 
-  const loadUserProfile = () => {
-    // This would typically load from a database
-    // For now, using placeholder data
-    setUserProfile({
-      dateOfBirth: new Date(1995, 5, 15), // Placeholder date
-      address: "Kathmandu", // Placeholder address
-    });
+  const loadUserProfile = async (userId: string) => {
+    try {
+      console.log("Loading profile for user:", userId); // Debug log
+      setLoading(true);
+
+      const userDocRef = doc(db, "users", userId);
+      console.log("Document reference created"); // Debug log
+
+      const userDoc = await getDoc(userDocRef);
+      console.log("Document fetched, exists:", userDoc.exists()); // Debug log
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        console.log("User data:", data); // Debug log
+
+        // Handle different date formats from database
+        let dateOfBirth = null;
+        if (data.dateOfBirth) {
+          if (typeof data.dateOfBirth.toDate === "function") {
+            // Firestore Timestamp
+            dateOfBirth = data.dateOfBirth.toDate();
+          } else if (data.dateOfBirth instanceof Date) {
+            // JavaScript Date object
+            dateOfBirth = data.dateOfBirth;
+          } else if (typeof data.dateOfBirth === "string") {
+            // String date
+            dateOfBirth = new Date(data.dateOfBirth);
+          } else {
+            console.log(
+              "Unknown date format:",
+              typeof data.dateOfBirth,
+              data.dateOfBirth
+            );
+          }
+        }
+
+        setUserProfile({
+          dateOfBirth: dateOfBirth,
+          city: data.city || data.address || "", // Handle both field names
+        });
+      } else {
+        console.log("Document doesn't exist, creating new profile"); // Debug log
+
+        // Create a new user profile document if it doesn't exist
+        const newProfile = {
+          dateOfBirth: null,
+          city: "",
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+
+        await setDoc(userDocRef, newProfile);
+        console.log("New profile created"); // Debug log
+
+        setUserProfile({
+          dateOfBirth: null,
+          city: "",
+        });
+      }
+    } catch (error: any) {
+      console.error("Detailed error loading user profile:", error);
+
+      // More specific error handling
+      if (error.code === "permission-denied") {
+        Alert.alert(
+          "Permission Error",
+          "You don't have permission to access this data. Please check your Firestore security rules."
+        );
+      } else if (error.code === "unavailable") {
+        Alert.alert(
+          "Connection Error",
+          "Unable to connect to the database. Please check your internet connection."
+        );
+      } else {
+        Alert.alert("Error", `Failed to load profile data: ${error.message}`);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateUserProfile = async (updates: Partial<UserProfile>) => {
+    if (!user) return;
+
+    try {
+      const userDocRef = doc(db, "users", user.uid);
+      const updateData = {
+        ...updates,
+        updatedAt: new Date(),
+      };
+
+      // Convert Date to Firestore Timestamp if dateOfBirth is being updated
+      if (updates.dateOfBirth) {
+        updateData.dateOfBirth = updates.dateOfBirth;
+      }
+
+      await updateDoc(userDocRef, updateData);
+
+      // Update local state
+      setUserProfile((prev) => ({ ...prev, ...updates }));
+      setRefreshKey((prev) => prev + 1);
+
+      return true;
+    } catch (error: any) {
+      console.error("Error updating user profile:", error);
+      Alert.alert("Error", "Failed to update profile. Please try again.");
+      return false;
+    }
   };
 
   const calculateAge = (birthDate: Date | null) => {
@@ -109,6 +220,20 @@ const ProfileScreen: React.FC = () => {
     ]);
   };
 
+  const refreshEmailVerification = async () => {
+    if (user) {
+      try {
+        await reload(user);
+        // Force a re-render by updating the refresh key
+        setRefreshKey((prev) => prev + 1);
+        Alert.alert("Success", "Email verification status refreshed!");
+      } catch (error) {
+        console.error("Error refreshing user:", error);
+        Alert.alert("Error", "Failed to refresh email verification status.");
+      }
+    }
+  };
+
   const handleEditProfile = () => {
     Alert.alert("Edit Profile", "Choose what you want to edit:", [
       {
@@ -124,8 +249,8 @@ const ProfileScreen: React.FC = () => {
         onPress: () => editDateOfBirth(),
       },
       {
-        text: "Edit Address",
-        onPress: () => editAddress(),
+        text: "Edit City",
+        onPress: () => editCity(),
       },
     ]);
   };
@@ -141,7 +266,7 @@ const ProfileScreen: React.FC = () => {
               // Update Firebase Auth profile
               await updateProfile(user, { displayName: newName.trim() });
 
-              // Method 1: Force state update with new object
+              // Force state update with new object
               setUser((prevUser) => ({
                 ...prevUser!,
                 displayName: newName.trim(),
@@ -167,43 +292,30 @@ const ProfileScreen: React.FC = () => {
     setShowDatePicker(true);
   };
 
-  const editAddress = () => {
+  const editCity = () => {
     setShowCityDropdown(true);
   };
 
-  const handleDateChange = (event: any, selectedDate?: Date) => {
+  const handleDateChange = async (event: any, selectedDate?: Date) => {
     if (Platform.OS === "android") {
       setShowDatePicker(false);
     }
 
     if (selectedDate) {
-      // Update userProfile state with new date
-      setUserProfile((prev) => ({
-        ...prev,
-        dateOfBirth: selectedDate,
-      }));
-
-      // Force refresh to update age calculation
-      setRefreshKey((prev) => prev + 1);
-
-      Alert.alert("Success", "Date of birth updated successfully!");
+      const success = await updateUserProfile({ dateOfBirth: selectedDate });
+      if (success) {
+        Alert.alert("Success", "Date of birth updated successfully!");
+      }
     }
   };
 
-  const handleCitySelect = (city: string) => {
-    // Update userProfile state with new city
-    setUserProfile((prev) => ({
-      ...prev,
-      address: city,
-    }));
+  const handleCitySelect = async (city: string) => {
+    const success = await updateUserProfile({ city: city });
 
-    // Close dropdown
-    setShowCityDropdown(false);
-
-    // Force refresh
-    setRefreshKey((prev) => prev + 1);
-
-    Alert.alert("Success", `Address updated to ${city} successfully!`);
+    if (success) {
+      setShowCityDropdown(false);
+      Alert.alert("Success", `City updated to ${city} successfully!`);
+    }
   };
 
   const renderCityItem = ({ item }: { item: string }) => (
@@ -212,13 +324,26 @@ const ProfileScreen: React.FC = () => {
       onPress={() => handleCitySelect(item)}
     >
       <Text style={styles.dropdownItemText}>{item}</Text>
-      {userProfile.address === item && (
+      {userProfile.city === item && (
         <Text style={styles.selectedIndicator}>✓</Text>
       )}
     </TouchableOpacity>
   );
 
-  
+  if (loading) {
+    return (
+      <Background>
+        <View
+          style={[
+            styles.container,
+            { justifyContent: "center", alignItems: "center" },
+          ]}
+        >
+          <Text style={styles.subtitle}>Loading profile...</Text>
+        </View>
+      </Background>
+    );
+  }
 
   return (
     <Background>
@@ -271,9 +396,9 @@ const ProfileScreen: React.FC = () => {
                 </View>
 
                 <View style={styles.userInfo}>
-                  <Text style={styles.label}>Address:</Text>
-                  <Text style={styles.value} key={`address-${refreshKey}`}>
-                    {userProfile.address || "Not set"}
+                  <Text style={styles.label}>City:</Text>
+                  <Text style={styles.value} key={`city-${refreshKey}`}>
+                    {userProfile.city || "Not set"}
                   </Text>
                 </View>
 
@@ -287,6 +412,12 @@ const ProfileScreen: React.FC = () => {
                   >
                     {user.emailVerified ? "✓ Verified" : "✗ Not Verified"}
                   </Text>
+                </View>
+
+                {/* Debug info - remove this later */}
+                <View style={styles.userInfo}>
+                  <Text style={styles.label}>Debug - Auth emailVerified:</Text>
+                  <Text style={styles.value}>{String(user.emailVerified)}</Text>
                 </View>
 
                 <View style={styles.userInfo}>
@@ -311,6 +442,17 @@ const ProfileScreen: React.FC = () => {
               >
                 <Text style={styles.editButtonText}>Edit Profile</Text>
               </TouchableOpacity>
+
+              {!user?.emailVerified && (
+                <TouchableOpacity
+                  style={[styles.button, styles.refreshButton]}
+                  onPress={refreshEmailVerification}
+                >
+                  <Text style={styles.refreshButtonText}>
+                    Refresh Email Status
+                  </Text>
+                </TouchableOpacity>
+              )}
 
               <TouchableOpacity
                 style={[styles.button, styles.signOutButton]}
@@ -498,6 +640,16 @@ const styles = StyleSheet.create({
     borderColor: theme.colors.primary,
   },
   editButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
+  refreshButton: {
+    backgroundColor: "#28a745",
+    borderWidth: 1,
+    borderColor: "#28a745",
+  },
+  refreshButtonText: {
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",

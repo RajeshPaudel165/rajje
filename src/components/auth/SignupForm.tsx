@@ -19,7 +19,8 @@ import {
   updateProfile,
   sendEmailVerification,
 } from "firebase/auth";
-import { auth } from "../../firebase";
+import { doc, setDoc } from "firebase/firestore";
+import { auth, db } from "../../firebase"; // Make sure to import db (Firestore instance)
 
 interface SignupFormProps {
   onSwitchToLogin?: () => void;
@@ -37,6 +38,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
   const [showCityDropdown, setShowCityDropdown] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({
     name: "",
     dateOfBirth: "",
@@ -119,6 +121,40 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
     return isValid;
   };
 
+  // Function to save user data to Firestore
+  const saveUserToDatabase = async (user: any) => {
+    try {
+      const userData = {
+        uid: user.uid,
+        name: name.trim(),
+        email: email.toLowerCase().trim(),
+        dateOfBirth: dateOfBirth?.toISOString() || null,
+        city: selectedCity,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        emailVerified: false,
+        profile: {
+          displayName: name.trim(),
+          photoURL: null,
+        },
+        settings: {
+          notifications: true,
+          privacy: "public",
+        },
+        isActive: true,
+      };
+
+      // Save to Firestore using the user's UID as document ID
+      await setDoc(doc(db, "users", user.uid), userData);
+      console.log("User data saved to Firestore successfully");
+
+      return userData;
+    } catch (error) {
+      console.error("Error saving user data to Firestore:", error);
+      throw error;
+    }
+  };
+
   const handleDateChange = (event: any, selectedDate?: Date) => {
     if (Platform.OS === "android") {
       setShowDatePicker(false);
@@ -149,33 +185,62 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
   };
 
   const handleSignup = async () => {
-    if (validateForm()) {
-      try {
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-        await updateProfile(userCredential.user, { displayName: name });
-        await sendEmailVerification(userCredential.user);
+    if (!validateForm()) return;
 
-        Alert.alert(
-          "Verify Your Email",
-          "Account created successfully! Please check your email to verify your account before logging in.",
-          [{ text: "OK", onPress: onSwitchToLogin }]
-        );
-      } catch (error: any) {
-        console.log("Signup error:", error);
-        let message = "Something went wrong";
-        if (error.code === "auth/email-already-in-use") {
-          message = "This email is already in use.";
-        } else if (error.code === "auth/invalid-email") {
-          message = "Please enter a valid email address.";
-        } else if (error.code === "auth/weak-password") {
-          message = "Password must be at least 6 characters long.";
-        }
-        Alert.alert("Signup Failed", message);
+    setIsLoading(true);
+
+    try {
+      // Create user with Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+
+      // Update user profile
+      await updateProfile(userCredential.user, { displayName: name });
+
+      // Save user data to Firestore
+      await saveUserToDatabase(userCredential.user);
+
+      // Send email verification
+      await sendEmailVerification(userCredential.user);
+
+      Alert.alert(
+        "Account Created Successfully!",
+        "Your account has been created and your information has been saved. Please check your email to verify your account before logging in.",
+        [{ text: "OK", onPress: onSwitchToLogin }]
+      );
+
+      // Clear form
+      setName("");
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setDateOfBirth(null);
+      setSelectedCity("");
+    } catch (error: any) {
+      console.log("Signup error:", error);
+      let message = "Something went wrong while creating your account.";
+
+      if (error.code === "auth/email-already-in-use") {
+        message =
+          "This email is already registered. Please use a different email or login.";
+      } else if (error.code === "auth/invalid-email") {
+        message = "Please enter a valid email address.";
+      } else if (error.code === "auth/weak-password") {
+        message = "Password must be at least 6 characters long.";
+      } else if (error.code === "auth/network-request-failed") {
+        message =
+          "Network error. Please check your internet connection and try again.";
+      } else if (error.message?.includes("Firestore")) {
+        message =
+          "Account created but there was an issue saving your profile. Please contact support.";
       }
+
+      Alert.alert("Signup Failed", message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -213,6 +278,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
             }}
             autoCapitalize="words"
             placeholderTextColor={theme.colors.subText}
+            editable={!isLoading}
           />
           {errors.name ? (
             <Text style={styles.errorText}>{errors.name}</Text>
@@ -225,8 +291,10 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
             style={[
               styles.datePickerButton,
               errors.dateOfBirth ? styles.inputError : null,
+              isLoading ? styles.disabledInput : null,
             ]}
-            onPress={() => setShowDatePicker(true)}
+            onPress={() => !isLoading && setShowDatePicker(true)}
+            disabled={isLoading}
           >
             <Text
               style={[
@@ -272,8 +340,10 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
             style={[
               styles.dropdownButton,
               errors.city ? styles.inputError : null,
+              isLoading ? styles.disabledInput : null,
             ]}
-            onPress={() => setShowCityDropdown(true)}
+            onPress={() => !isLoading && setShowCityDropdown(true)}
+            disabled={isLoading}
           >
             <Text
               style={[
@@ -306,6 +376,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
             keyboardType="email-address"
             autoCapitalize="none"
             placeholderTextColor={theme.colors.subText}
+            editable={!isLoading}
           />
           {errors.email ? (
             <Text style={styles.errorText}>{errors.email}</Text>
@@ -328,12 +399,19 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
               }}
               secureTextEntry={!showPassword}
               placeholderTextColor={theme.colors.subText}
+              editable={!isLoading}
             />
             <TouchableOpacity
               style={styles.visibilityToggle}
               onPress={() => setShowPassword(!showPassword)}
+              disabled={isLoading}
             >
-              <Text style={styles.visibilityToggleText}>
+              <Text
+                style={[
+                  styles.visibilityToggleText,
+                  isLoading && styles.disabledText,
+                ]}
+              >
                 {showPassword ? "Hide" : "Show"}
               </Text>
             </TouchableOpacity>
@@ -359,20 +437,29 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
             }}
             secureTextEntry={!showPassword}
             placeholderTextColor={theme.colors.subText}
+            editable={!isLoading}
           />
           {errors.confirmPassword ? (
             <Text style={styles.errorText}>{errors.confirmPassword}</Text>
           ) : null}
         </View>
 
-        <TouchableOpacity style={globalStyles.button} onPress={handleSignup}>
-          <Text style={globalStyles.buttonText}>Sign Up</Text>
+        <TouchableOpacity
+          style={[globalStyles.button, isLoading && styles.disabledButton]}
+          onPress={handleSignup}
+          disabled={isLoading}
+        >
+          <Text style={globalStyles.buttonText}>
+            {isLoading ? "Creating Account..." : "Sign Up"}
+          </Text>
         </TouchableOpacity>
 
         <View style={styles.loginPrompt}>
           <Text style={styles.loginPromptText}>Already have an account?</Text>
-          <TouchableOpacity onPress={onSwitchToLogin}>
-            <Text style={styles.loginLink}>Login</Text>
+          <TouchableOpacity onPress={onSwitchToLogin} disabled={isLoading}>
+            <Text style={[styles.loginLink, isLoading && styles.disabledText]}>
+              Login
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -590,6 +677,17 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: theme.colors.subText,
     textAlign: "center",
+  },
+  // Loading states
+  disabledInput: {
+    backgroundColor: "#f5f5f5",
+    opacity: 0.7,
+  },
+  disabledButton: {
+    opacity: 0.7,
+  },
+  disabledText: {
+    opacity: 0.5,
   },
 });
 
