@@ -6,6 +6,8 @@ export function useCurrentLocation() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
+    let subscription: Location.LocationSubscription | null = null;
+
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
@@ -13,9 +15,21 @@ export function useCurrentLocation() {
         return;
       }
 
-      let loc = await Location.getCurrentPositionAsync({});
-      setLocation(loc);
+      subscription = await Location.watchPositionAsync(
+        {
+          accuracy: Location.Accuracy.High,
+          timeInterval: 10000, // Update every 10 seconds
+          distanceInterval: 1, // Update every 10 meters
+        },
+        (loc) =>{setLocation(loc);},
+        );
+      
     })();
+    return () => {
+      if (subscription) {
+        subscription.remove();
+      }
+    };
   }, []);
 
   return { location, errorMsg };

@@ -3,18 +3,16 @@ import {
   View,
   Text,
   StyleSheet,
-  TouchableOpacity,
   ScrollView,
-  Image,
 } from "react-native";
 import { theme } from "../constants/theme";
 import VehicleIcon from "../components/common/VehicleIcon";
 import Background from "../components/common/Background";
-import Icon from "react-native-vector-icons/Ionicons";
 import { useCurrentLocation } from "../hooks/location";
 
 const DashboardScreen: React.FC = () => {
   const { location, errorMsg } = useCurrentLocation();
+
   return (
     <Background>
       <View style={styles.container}>
@@ -29,23 +27,22 @@ const DashboardScreen: React.FC = () => {
         </View>
 
         <ScrollView style={styles.content}>
-          <View style={styles.mapContainer}>
-            <Image
-              source={{ uri: "https://via.placeholder.com/350x200?text=Map" }}
-              style={styles.mapImage}
-              resizeMode="cover"
-            />
-            <View style={styles.mapOverlay}>
-              <TouchableOpacity style={styles.searchBar}>
-                <Icon name="search" size={18} color="#666666" />
-                <Text style={styles.searchText}>From?</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.searchBar}>
-                <Icon name="search" size={18} color="#666666" />
-                <Text style={styles.searchText}>Where To?</Text>
-              </TouchableOpacity>
-            </View>
+          <View style={styles.locationContainer}>
+            {errorMsg ? (
+              <Text style={styles.errorText}>{errorMsg}</Text>
+            ) : location ? (
+              <>
+                <Text style={styles.label}>Your Location:</Text>
+                <Text style={styles.locationText}>
+                  Latitude: {location.coords.latitude}
+                </Text>
+                <Text style={styles.locationText}>
+                  Longitude: {location.coords.longitude}
+                </Text>
+              </>
+            ) : (
+              <Text style={styles.label}>Getting location...</Text>
+            )}
           </View>
         </ScrollView>
       </View>
@@ -75,52 +72,30 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.05 }],
     marginLeft: 2,
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    marginLeft: 6,
-    color: theme.colors.primary,
-    fontFamily: "System-Bold",
-  },
   content: {
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 80,
   },
-  mapContainer: {
-    borderRadius: theme.borderRadius.medium,
-    overflow: "hidden",
-    marginBottom: 16,
-    position: "relative",
-  },
-  mapImage: {
-    width: "100%",
-    height: 200,
-  },
-  mapOverlay: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    padding: 16,
-  },
-  searchBar: {
-    marginBottom: 12,
-    flexDirection: "row",
-    backgroundColor: "white",
-    borderRadius: theme.borderRadius.medium,
-    padding: 12,
+  locationContainer: {
+    marginTop: 32,
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    justifyContent: "center",
   },
-  searchText: {
-    marginLeft: 8,
-    color: "#666666",
+  label: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 8,
+    color: theme.colors.primary,
+  },
+  locationText: {
+    fontSize: 16,
+    marginBottom: 4,
+    color: "#333",
+  },
+  errorText: {
+    color: "red",
     fontSize: 16,
   },
 });

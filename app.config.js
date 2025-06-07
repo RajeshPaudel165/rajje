@@ -24,14 +24,16 @@ export default ({ config }) => {
       resizeMode: "contain",
       backgroundColor: "#ffffff",
     },
-    ios: config.ios || {
+    ios:{
+      bundleIdentifier: "com.nabin-777.myapp",
       supportsTablet: true,
       deploymentTarget: "18.5",
       config: {
         googleMapsApiKey: "YOUR_IOS_API_KEY", 
       },
     },
-    android: config.android || {
+    android: {
+      package: "com.nabin_777.myapp",
       adaptiveIcon: {
         foregroundImage: "./assets/adaptive-icon.png",
         backgroundColor: "#ffffff",
