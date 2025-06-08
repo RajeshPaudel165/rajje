@@ -464,7 +464,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
         </View>
 
         <Text style={styles.copyright}>
-          © 2025 @kompanlabs. All rights reserved.
+          © 2025 @kampanlabs. All rights reserved.
         </Text>
       </View>
 

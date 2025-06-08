@@ -14,7 +14,7 @@ import { theme } from "../../constants/theme";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
-const COPYRIGHT = "© 2025 @kompanlabs. All rights reserved.";
+const COPYRIGHT = "© 2025 @kampanlabs. All rights reserved.";
 
 const LoadingScreen = () => {
   const vehicleBounce = useRef(new Animated.Value(0)).current;
