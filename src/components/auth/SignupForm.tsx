@@ -20,7 +20,8 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "../../firebase"; // Make sure to import db (Firestore instance)
+import { auth, db } from "../../firebase";
+import NetInfo from "@react-native-community/netinfo";
 
 interface SignupFormProps {
   onSwitchToLogin?: () => void;
@@ -185,6 +186,15 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
   };
 
   const handleSignup = async () => {
+    const netState = await NetInfo.fetch();
+    if (!netState.isConnected) {
+      Alert.alert(
+        "Connection Error",
+        "No internet connection. Please check your connection and try again."
+      );
+      return;
+    }
+
     if (!validateForm()) return;
 
     setIsLoading(true);

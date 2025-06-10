@@ -40,7 +40,7 @@ const AuthToggle: React.FC<AuthToggleProps> = ({ isSignup, onToggle }) => {
 const styles = StyleSheet.create({
   formToggleContainer: {
     flexDirection: "row",
-    marginTop: -10,
+    marginTop: -45,
     borderRadius: theme.borderRadius.medium,
     overflow: "hidden",
     borderWidth: 1,

@@ -17,6 +17,7 @@ import {
   signInWithEmailAndPassword,
 } from "firebase/auth";
 import PasswordRecoveryWrapper from "./PasswordRecoveryWrapper";
+import NetInfo from "@react-native-community/netinfo";
 
 interface FormProps {
   onSubmit: Function;
@@ -66,6 +67,15 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
   };
 
   const handleLogin = async () => {
+    const netState = await NetInfo.fetch();
+    if (!netState.isConnected) {
+      Alert.alert(
+        "Connection Error",
+        "No internet connection. Please check your connection and try again."
+      );
+      return;
+    }
+
     if (validateForm()) {
       try {
         const userCredential = await signInWithEmailAndPassword(

@@ -72,12 +72,12 @@ const AuthScreen: React.FC = () => {
 const styles = StyleSheet.create({
   header: {
     width: "100%",
-    height: 150, // Increased from 120 to give more space
+    height: 150,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 16,
-    marginTop: 40, // Added top margin to push the logo down
+    marginTop: 10,
   },
   logoContainer: {
     alignItems: "center",

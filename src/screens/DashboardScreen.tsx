@@ -28,30 +28,10 @@ const DashboardScreen: React.FC = () => {
         <Text style={styles.sectionTitle}>Dashboard Screen</Text>
       </View>
     </Background>
-    // <LinearGradient
-    //   colors={["#003893", "#0056D6", "#007BFF"]}
-    //   style={styles.gradientContainer}
-    //   start={{ x: 0, y: 0 }}
-    //   end={{ x: 1, y: 1 }}
-    // >
-    //   <View style={styles.container}>
-    //     <View style={styles.header}>
-    //       <View style={styles.logoContainer}>
-    //         <VehicleIcon
-    //           width={theme.logoDashboard.width}
-    //           height={theme.logoDashboard.height}
-    //           color="#FFFFFF" // Changed to white for better contrast on gradient
-    //         />
-    //       </View>
-    //     </View>
-    //     <Text style={styles.sectionTitle}>Dashboard Screen</Text>
-    //   </View>
-    // </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  // Remove gradientContainer since Background handles it
   container: {
     flex: 1,
     backgroundColor: "transparent",
@@ -78,7 +58,7 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
     marginTop: 20,
-    color: "#003893", 
+    color: "#003893",
   },
   mapContainer: {
     flex: 1,

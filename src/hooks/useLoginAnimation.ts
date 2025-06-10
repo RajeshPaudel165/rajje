@@ -26,7 +26,7 @@ export const useLoginAnimation = () => {
         useNativeDriver: true,
       }),
       Animated.timing(logoPosition, {
-        toValue: -(windowWidth / 2 - 85),
+        toValue: -(windowWidth / 2 + 100),
         duration: 500,
         useNativeDriver: true,
       }),
