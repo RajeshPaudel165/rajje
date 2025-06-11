@@ -12,7 +12,7 @@ import {
   FlatList,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { theme } from "../../constants/theme";
+import { lightTheme } from "../../theme"; // Always use light theme
 import { globalStyles, CARD_WIDTH } from "../../styles/styles";
 import {
   createUserWithEmailAndPassword,
@@ -287,7 +287,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
               if (errors.name) setErrors({ ...errors, name: "" });
             }}
             autoCapitalize="words"
-            placeholderTextColor={theme.colors.subText}
+            placeholderTextColor={lightTheme.colors.subText}
             editable={!isLoading}
           />
           {errors.name ? (
@@ -385,7 +385,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
             }}
             keyboardType="email-address"
             autoCapitalize="none"
-            placeholderTextColor={theme.colors.subText}
+            placeholderTextColor={lightTheme.colors.subText}
             editable={!isLoading}
           />
           {errors.email ? (
@@ -408,7 +408,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
                 if (errors.password) setErrors({ ...errors, password: "" });
               }}
               secureTextEntry={!showPassword}
-              placeholderTextColor={theme.colors.subText}
+              placeholderTextColor={lightTheme.colors.subText}
               editable={!isLoading}
             />
             <TouchableOpacity
@@ -446,7 +446,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
                 setErrors({ ...errors, confirmPassword: "" });
             }}
             secureTextEntry={!showPassword}
-            placeholderTextColor={theme.colors.subText}
+            placeholderTextColor={lightTheme.colors.subText}
             editable={!isLoading}
           />
           {errors.confirmPassword ? (
@@ -522,7 +522,7 @@ const styles = StyleSheet.create({
   formTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: theme.colors.primary,
+    color: lightTheme.colors.primary,
     marginBottom: 24,
     textAlign: "center",
   },
@@ -541,12 +541,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginBottom: 8,
-    color: theme.colors.text,
+    color: lightTheme.colors.text,
   },
   datePickerButton: {
     borderWidth: 1,
     borderColor: "rgba(0, 56, 147, 0.3)",
-    borderRadius: theme.borderRadius.small,
+    borderRadius: lightTheme.borderRadius.small,
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: "#fff",
@@ -555,10 +555,10 @@ const styles = StyleSheet.create({
   },
   datePickerText: {
     fontSize: 16,
-    color: theme.colors.text,
+    color: lightTheme.colors.text,
   },
   placeholderText: {
-    color: theme.colors.subText,
+    color: lightTheme.colors.subText,
   },
   iosDatePickerActions: {
     flexDirection: "row",
@@ -570,7 +570,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   datePickerActionText: {
-    color: theme.colors.primary,
+    color: lightTheme.colors.primary,
     fontSize: 16,
     fontWeight: "600",
   },
@@ -578,7 +578,7 @@ const styles = StyleSheet.create({
   dropdownButton: {
     borderWidth: 1,
     borderColor: "rgba(0, 56, 147, 0.3)",
-    borderRadius: theme.borderRadius.small,
+    borderRadius: lightTheme.borderRadius.small,
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: "#fff",
@@ -589,12 +589,12 @@ const styles = StyleSheet.create({
   },
   dropdownText: {
     fontSize: 16,
-    color: theme.colors.text,
+    color: lightTheme.colors.text,
     flex: 1,
   },
   dropdownArrow: {
     fontSize: 12,
-    color: theme.colors.subText,
+    color: lightTheme.colors.subText,
   },
   modalOverlay: {
     flex: 1,
@@ -604,7 +604,7 @@ const styles = StyleSheet.create({
   },
   dropdownModal: {
     backgroundColor: "white",
-    borderRadius: theme.borderRadius.medium,
+    borderRadius: lightTheme.borderRadius.medium,
     width: "80%",
     maxHeight: "60%",
     shadowColor: "#000",
@@ -624,11 +624,11 @@ const styles = StyleSheet.create({
   dropdownTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: theme.colors.primary,
+    color: lightTheme.colors.primary,
   },
   closeButton: {
     fontSize: 18,
-    color: theme.colors.subText,
+    color: lightTheme.colors.subText,
     fontWeight: "600",
   },
   dropdownList: {
@@ -642,7 +642,7 @@ const styles = StyleSheet.create({
   },
   dropdownItemText: {
     fontSize: 16,
-    color: theme.colors.text,
+    color: lightTheme.colors.text,
   },
   passwordInputWrapper: {
     flexDirection: "row",
@@ -654,15 +654,15 @@ const styles = StyleSheet.create({
     right: 16,
   },
   visibilityToggleText: {
-    color: theme.colors.primary,
+    color: lightTheme.colors.primary,
     fontSize: 14,
     fontWeight: "600",
   },
   inputError: {
-    borderColor: theme.colors.error,
+    borderColor: lightTheme.colors.error,
   },
   errorText: {
-    color: theme.colors.error,
+    color: lightTheme.colors.error,
     fontSize: 12,
     marginTop: 4,
   },
@@ -673,11 +673,11 @@ const styles = StyleSheet.create({
     marginTop: 16,
   },
   loginPromptText: {
-    color: theme.colors.subText,
+    color: lightTheme.colors.subText,
     fontSize: 14,
   },
   loginLink: {
-    color: theme.colors.primary,
+    color: lightTheme.colors.primary,
     fontSize: 14,
     fontWeight: "600",
     marginLeft: 5,
@@ -685,7 +685,7 @@ const styles = StyleSheet.create({
   copyright: {
     marginTop: 24,
     fontSize: 12,
-    color: theme.colors.subText,
+    color: lightTheme.colors.subText,
     textAlign: "center",
   },
   // Loading states

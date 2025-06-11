@@ -9,6 +9,10 @@ export interface Theme {
     cardBg: string;
     lightBg: string;
     border: string;
+    error: string;
+    textSecondary: string;
+    surface: string;
+    card: string;
   };
   fonts: {
     regular: string;
@@ -43,9 +47,9 @@ export interface Theme {
   };
 }
 
-export const theme: Theme = {
+export const lightTheme: Theme = {
   colors: {
-    primary: "#003893", // Reverted to original blue color for buttons
+    primary: "#003893", // Blue color for buttons
     secondary: "#f83d3d", // Red from logo
     accent: "#3C1DFF", // Darker purple for emphasis
     text: "#333333", // Dark text
@@ -54,6 +58,10 @@ export const theme: Theme = {
     cardBg: "#ffffff", // White card background
     lightBg: "#F0F2FF", // Very light purple background
     border: "#e1e4e8", // Light gray for borders
+    error: "#f83d3d", // Red color for errors
+    textSecondary: "#666666", // Secondary text color
+    surface: "#f8f9fa", // Surface color
+    card: "#ffffff", // Card background
   },
   fonts: {
     regular: "System",
@@ -76,14 +84,66 @@ export const theme: Theme = {
   },
   logo: {
     width: 150,
-    height: 100,
+    height: 120,
   },
   logoDashboard: {
     width: 120,
     height: 80,
   },
   logoForm: {
-    width: 100,
-    height: 60,
+    width: 150,
+    height: 120,
   },
 };
+
+export const darkTheme: Theme = {
+  colors: {
+    primary: "#4A90E2", // Lighter blue for dark mode
+    secondary: "#ff6b6b", // Softer red for dark mode
+    accent: "#6C5CE7", // Purple accent
+    text: "#000000", // Black text for better contrast
+    subText: "#B0B0B0", // Light gray text
+    background: "#121212", // Dark background
+    cardBg: "#1E1E1E", // Dark card background
+    lightBg: "#2A2A2A", // Darker background variant
+    border: "#333333", // Dark border
+    error: "#ff6b6b", // Red for errors
+    textSecondary: "#000000", // Secondary text color
+    surface: "#1E1E1E", // Surface color
+    card: "#1E1E1E", // Card background
+  },
+  fonts: {
+    regular: "System",
+    medium: "System",
+    semibold: "System",
+    bold: "System-Bold",
+  },
+  borderRadius: {
+    small: 6,
+    medium: 10,
+    large: 20,
+  },
+  spacing: {
+    xs: 4,
+    s: 8,
+    m: 16,
+    l: 24,
+    xl: 32,
+    xxl: 48,
+  },
+  logo: {
+    width: 150,
+    height: 120,
+  },
+  logoDashboard: {
+    width: 120,
+    height: 80,
+  },
+  logoForm: {
+    width: 150,
+    height: 120,
+  },
+};
+
+// Default export for compatibility
+export const theme = lightTheme;

@@ -8,12 +8,12 @@ import {
   ScrollView,
   Alert,
 } from "react-native";
-import { theme } from "../../constants/theme";
+import { lightTheme } from "../../theme";
 import { globalStyles, CARD_WIDTH } from "../../styles/styles";
 import { auth } from "../../firebase";
 import { sendPasswordResetEmail } from "firebase/auth";
 
-const PasswordRecoveryWrapper: React.FC = () => {
+const PasswordReset: React.FC = () => {
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState({
     email: "",
@@ -42,7 +42,7 @@ const PasswordRecoveryWrapper: React.FC = () => {
     return isValid;
   };
 
-  const handlePasswordRecovery = async () => {
+  const handlePasswordReset = async () => {
     if (validateForm()) {
       try {
         await sendPasswordResetEmail(auth, email);
@@ -81,7 +81,7 @@ const PasswordRecoveryWrapper: React.FC = () => {
             }}
             keyboardType="email-address"
             autoCapitalize="none"
-            placeholderTextColor={theme.colors.subText}
+            placeholderTextColor={lightTheme.colors.subText}
           />
           {errors.email ? (
             <Text style={styles.errorText}>{errors.email}</Text>
@@ -90,7 +90,7 @@ const PasswordRecoveryWrapper: React.FC = () => {
 
         <TouchableOpacity
           style={globalStyles.button}
-          onPress={handlePasswordRecovery}
+          onPress={handlePasswordReset}
         >
           <Text style={globalStyles.buttonText}>Send Reset Email</Text>
         </TouchableOpacity>
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   formTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: theme.colors.primary,
+    color: lightTheme.colors.primary,
     marginBottom: 24,
     textAlign: "center",
   },
@@ -135,23 +135,23 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginBottom: 8,
-    color: theme.colors.text,
+    color: lightTheme.colors.text,
   },
   inputError: {
-    borderColor: theme.colors.error,
+    borderColor: lightTheme.colors.error,
   },
   errorText: {
-    color: theme.colors.error,
+    color: lightTheme.colors.error,
     fontSize: 12,
     marginTop: 4,
   },
   instructionText: {
     marginTop: 16,
     fontSize: 14,
-    color: theme.colors.subText,
+    color: lightTheme.colors.subText,
     textAlign: "center",
     lineHeight: 20,
   },
 });
 
-export default PasswordRecoveryWrapper;
+export default PasswordReset;

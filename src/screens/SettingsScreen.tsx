@@ -1,47 +1,168 @@
-import React from "react";
-import { View, Text, StyleSheet, ScrollView, Switch } from "react-native";
-import { theme } from "../constants/theme";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Switch,
+  TouchableOpacity,
+  Modal,
+  Dimensions,
+} from "react-native";
+import { theme } from "../theme";
 import { globalStyles } from "../styles/styles";
 import VehicleIcon from "../components/common/VehicleIcon";
-import Background from "../components/common/Background";
+import ThemeBackground from "../components/common/ThemeBackground";
 import Icon from "react-native-vector-icons/Ionicons";
+
+import { useTheme } from "../contexts/ThemeContext";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const SettingsScreen: React.FC = () => {
   const [notifications, setNotifications] = React.useState(true);
-  const [darkMode, setDarkMode] = React.useState(false);
   const [locationSharing, setLocationSharing] = React.useState(true);
+  const [themeModalVisible, setThemeModalVisible] = useState(false);
+  const [languageModalVisible, setLanguageModalVisible] = useState(false);
+
+  const { isDark, colors, themeMode, setTheme } = useTheme();
+  const { currentLanguage, setLanguage, t, availableLanguages } = useLanguage();
+
+  const themeOptions = [
+    {
+      key: "light",
+      label: t("light"),
+      icon: "sunny",
+      description: "Bright and clean",
+    },
+    {
+      key: "dark",
+      label: t("dark"),
+      icon: "moon",
+      description: "Easy on the eyes",
+    },
+    {
+      key: "auto",
+      label: t("auto"),
+      icon: "phone-portrait",
+      description: "Follows system",
+    },
+  ];
+
+  const handleThemeChange = (selectedTheme: "light" | "dark" | "auto") => {
+    setTheme(selectedTheme);
+    setThemeModalVisible(false);
+  };
+
+  const handleLanguageChange = (languageCode: string) => {
+    setLanguage(languageCode);
+    setLanguageModalVisible(false);
+  };
 
   return (
-    <Background>
-      <View style={styles.container}>
+    <ThemeBackground>
+      <View style={[styles.container, { backgroundColor: "transparent" }]}>
         <View style={styles.header}>
           <View style={styles.logoContainer}>
             <VehicleIcon
               width={theme.logoDashboard.width}
               height={theme.logoDashboard.height}
-              color={theme.colors.primary}
+              color={colors.primary}
             />
           </View>
         </View>
 
         <ScrollView style={styles.content}>
-          <View style={styles.settingsSection}>
-            <Text style={styles.sectionTitle}>App Settings</Text>
+          <View
+            style={[
+              styles.settingsSection,
+              { backgroundColor: "rgba(255, 255, 255, 0.9)" },
+            ]}
+          >
+            <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+              {t("preferences")}
+            </Text>
+
+            {/* Theme Selection */}
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => setThemeModalVisible(true)}
+            >
+              <View style={styles.settingInfo}>
+                <Icon
+                  name="color-palette-outline"
+                  size={24}
+                  color={colors.primary}
+                />
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  {t("theme")}
+                </Text>
+              </View>
+              <View style={styles.settingValue}>
+                <Text
+                  style={[styles.valueText, { color: colors.textSecondary }]}
+                >
+                  {
+                    themeOptions.find((option) => option.key === themeMode)
+                      ?.label
+                  }
+                </Text>
+                <Icon
+                  name="chevron-forward"
+                  size={20}
+                  color={colors.textSecondary}
+                />
+              </View>
+            </TouchableOpacity>
+
+            {/* Language Selection */}
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => setLanguageModalVisible(true)}
+            >
+              <View style={styles.settingInfo}>
+                <Icon
+                  name="language-outline"
+                  size={24}
+                  color={colors.primary}
+                />
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  {t("language")}
+                </Text>
+              </View>
+              <View style={styles.settingValue}>
+                <Text
+                  style={[styles.valueText, { color: colors.textSecondary }]}
+                >
+                  {
+                    availableLanguages.find(
+                      (lang) => lang.code === currentLanguage
+                    )?.name
+                  }
+                </Text>
+                <Icon
+                  name="chevron-forward"
+                  size={20}
+                  color={colors.textSecondary}
+                />
+              </View>
+            </TouchableOpacity>
 
             <View style={styles.settingItem}>
               <View style={styles.settingInfo}>
                 <Icon
                   name="notifications-outline"
                   size={24}
-                  color={theme.colors.primary}
+                  color={colors.primary}
                 />
-                <Text style={styles.settingText}>Notifications</Text>
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  {t("notifications")}
+                </Text>
               </View>
               <Switch
                 value={notifications}
                 onValueChange={setNotifications}
-                trackColor={{ false: "#767577", true: theme.colors.primary }}
-                thumbColor="#f4f3f4"
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor={colors.surface}
               />
             </View>
 
@@ -50,21 +171,254 @@ const SettingsScreen: React.FC = () => {
                 <Icon
                   name="location-outline"
                   size={24}
-                  color={theme.colors.primary}
+                  color={colors.primary}
                 />
-                <Text style={styles.settingText}>Location Sharing</Text>
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  {t("locationServices")}
+                </Text>
               </View>
               <Switch
                 value={locationSharing}
                 onValueChange={setLocationSharing}
-                trackColor={{ false: "#767577", true: theme.colors.primary }}
-                thumbColor="#f4f3f4"
+                trackColor={{ false: colors.border, true: colors.primary }}
+                thumbColor={colors.surface}
               />
             </View>
           </View>
         </ScrollView>
+
+        {/* Theme Selection Modal */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={themeModalVisible}
+          onRequestClose={() => setThemeModalVisible(false)}
+          statusBarTranslucent={true}
+        >
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.modernModalContent,
+                { backgroundColor: colors.card },
+              ]}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modernModalTitle, { color: colors.text }]}>
+                  {t("selectTheme")}
+                </Text>
+                <TouchableOpacity
+                  style={[
+                    styles.closeButton,
+                    { backgroundColor: colors.surface },
+                  ]}
+                  onPress={() => setThemeModalVisible(false)}
+                  activeOpacity={0.7}
+                >
+                  <Icon name="close" size={20} color={colors.textSecondary} />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.optionsContainer}>
+                {themeOptions.map((option, index) => (
+                  <TouchableOpacity
+                    key={option.key}
+                    style={[
+                      styles.modernModalOption,
+                      {
+                        backgroundColor:
+                          themeMode === option.key
+                            ? colors.primary + "10"
+                            : "transparent",
+                        borderColor:
+                          themeMode === option.key
+                            ? colors.primary
+                            : colors.border,
+                      },
+                      index !== themeOptions.length - 1 && styles.optionMargin,
+                    ]}
+                    onPress={() =>
+                      handleThemeChange(option.key as "light" | "dark" | "auto")
+                    }
+                    activeOpacity={0.8}
+                  >
+                    <View
+                      style={[
+                        styles.iconContainer,
+                        {
+                          backgroundColor:
+                            themeMode === option.key
+                              ? colors.primary
+                              : colors.surface,
+                        },
+                      ]}
+                    >
+                      <Icon
+                        name={option.icon}
+                        size={22}
+                        color={
+                          themeMode === option.key ? "#FFFFFF" : colors.primary
+                        }
+                      />
+                    </View>
+                    <View style={styles.optionTextContainer}>
+                      <Text
+                        style={[
+                          styles.modernModalOptionText,
+                          {
+                            color:
+                              themeMode === option.key
+                                ? colors.primary
+                                : colors.text,
+                            fontWeight:
+                              themeMode === option.key ? "600" : "500",
+                          },
+                        ]}
+                      >
+                        {option.label}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.themeSubtext,
+                          { color: colors.textSecondary },
+                        ]}
+                      >
+                        {option.description}
+                      </Text>
+                    </View>
+                    {themeMode === option.key && (
+                      <View style={styles.checkmarkContainer}>
+                        <Icon
+                          name="checkmark-circle"
+                          size={24}
+                          color={colors.primary}
+                        />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        {/* Language Selection Modal */}
+        <Modal
+          animationType="fade"
+          transparent={true}
+          visible={languageModalVisible}
+          onRequestClose={() => setLanguageModalVisible(false)}
+          statusBarTranslucent={true}
+        >
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.modernModalContent,
+                { backgroundColor: colors.card },
+              ]}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modernModalTitle, { color: colors.text }]}>
+                  {t("selectLanguage")}
+                </Text>
+                <TouchableOpacity
+                  style={[
+                    styles.closeButton,
+                    { backgroundColor: colors.surface },
+                  ]}
+                  onPress={() => setLanguageModalVisible(false)}
+                  activeOpacity={0.7}
+                >
+                  <Icon name="close" size={20} color={colors.textSecondary} />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.optionsContainer}>
+                {availableLanguages.map((language, index) => (
+                  <TouchableOpacity
+                    key={language.code}
+                    style={[
+                      styles.modernModalOption,
+                      {
+                        backgroundColor:
+                          currentLanguage === language.code
+                            ? colors.primary + "10"
+                            : "transparent",
+                        borderColor:
+                          currentLanguage === language.code
+                            ? colors.primary
+                            : colors.border,
+                      },
+                      index !== availableLanguages.length - 1 &&
+                        styles.optionMargin,
+                    ]}
+                    onPress={() => handleLanguageChange(language.code)}
+                    activeOpacity={0.8}
+                  >
+                    <View
+                      style={[
+                        styles.iconContainer,
+                        {
+                          backgroundColor:
+                            currentLanguage === language.code
+                              ? colors.primary
+                              : colors.surface,
+                        },
+                      ]}
+                    >
+                      <Icon
+                        name="language"
+                        size={22}
+                        color={
+                          currentLanguage === language.code
+                            ? "#FFFFFF"
+                            : colors.primary
+                        }
+                      />
+                    </View>
+                    <View style={styles.optionTextContainer}>
+                      <Text
+                        style={[
+                          styles.modernModalOptionText,
+                          {
+                            color:
+                              currentLanguage === language.code
+                                ? colors.primary
+                                : colors.text,
+                            fontWeight:
+                              currentLanguage === language.code ? "600" : "500",
+                          },
+                        ]}
+                      >
+                        {language.name}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.languageSubtext,
+                          { color: colors.textSecondary },
+                        ]}
+                      >
+                        {language.code === "en"
+                          ? "English Language"
+                          : "नेपाली भाषा"}
+                      </Text>
+                    </View>
+                    {currentLanguage === language.code && (
+                      <View style={styles.checkmarkContainer}>
+                        <Icon
+                          name="checkmark-circle"
+                          size={24}
+                          color={colors.primary}
+                        />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          </View>
+        </Modal>
       </View>
-    </Background>
+    </ThemeBackground>
   );
 };
 
@@ -127,16 +481,144 @@ const styles = StyleSheet.create({
   settingInfo: {
     flexDirection: "row",
     alignItems: "center",
+    flex: 1,
   },
   settingText: {
     fontSize: 16,
     marginLeft: 12,
     color: theme.colors.text,
   },
+  settingValue: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  valueText: {
+    fontSize: 16,
+    marginRight: 8,
+  },
   subtitle: {
     fontSize: 16,
     color: theme.colors.text,
     lineHeight: 22,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modernModalContent: {
+    width: "100%",
+    maxWidth: 400,
+    borderRadius: 20,
+    padding: 0,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 20,
+  },
+  modernModalTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    flex: 1,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  optionsContainer: {
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+  },
+  modernModalOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    borderWidth: 2,
+    backgroundColor: "transparent",
+  },
+  optionMargin: {
+    marginBottom: 12,
+  },
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  optionTextContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  modernModalOptionText: {
+    fontSize: 17,
+    lineHeight: 22,
+  },
+  languageSubtext: {
+    fontSize: 14,
+    marginTop: 2,
+    opacity: 0.7,
+  },
+  themeSubtext: {
+    fontSize: 14,
+    marginTop: 2,
+    opacity: 0.7,
+  },
+  checkmarkContainer: {
+    marginLeft: 12,
+  },
+  // Legacy styles (keeping for backward compatibility)
+  modalContent: {
+    width: "85%",
+    borderRadius: 16,
+    padding: 20,
+    maxHeight: "70%",
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  modalOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+  },
+  modalOptionText: {
+    fontSize: 16,
+    marginLeft: 12,
+    flex: 1,
+  },
+  modalCloseButton: {
+    marginTop: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  modalCloseText: {
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 

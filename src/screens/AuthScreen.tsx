@@ -1,19 +1,21 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Animated } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import Form from "../components/auth/Form";
+import LoginForm from "../components/auth/LoginForm";
 import SignupForm from "../components/auth/SignupForm";
 import VehicleIcon from "../components/common/VehicleIcon";
 import AuthToggle from "../components/auth/AuthToggle";
-import Background from "../components/common/Background";
+import StaticLightBackground from "../components/common/StaticLightBackground";
 import { useLoginAnimation } from "../hooks/useLoginAnimation";
 import { globalStyles } from "../styles/styles";
-import { theme } from "../constants/theme";
+import { lightTheme } from "../theme"; // Always use light theme
+import { useLanguage } from "../contexts/LanguageContext";
 
 const AuthScreen: React.FC = () => {
   const [isSignup, setIsSignup] = useState(false);
   const [showForm, setShowForm] = useState(true);
   const navigation = useNavigation();
+  const { t } = useLanguage();
 
   const { logoPosition, logoScale, logoPositionY, animateLoginSuccess } =
     useLoginAnimation();
@@ -30,7 +32,7 @@ const AuthScreen: React.FC = () => {
   };
 
   return (
-    <Background>
+    <StaticLightBackground>
       <View style={styles.header}>
         <Animated.View
           style={[
@@ -45,9 +47,9 @@ const AuthScreen: React.FC = () => {
           ]}
         >
           <VehicleIcon
-            width={theme.logoForm.width}
-            height={theme.logoForm.height}
-            color={theme.colors.primary}
+            width={lightTheme.logoForm.width}
+            height={lightTheme.logoForm.height}
+            color={lightTheme.colors.primary}
           />
         </Animated.View>
       </View>
@@ -60,12 +62,12 @@ const AuthScreen: React.FC = () => {
             {isSignup ? (
               <SignupForm onSwitchToLogin={() => setIsSignup(false)} />
             ) : (
-              <Form onSubmit={handleLogin} />
+              <LoginForm onSubmit={handleLogin} />
             )}
           </View>
         </>
       )}
-    </Background>
+    </StaticLightBackground>
   );
 };
 

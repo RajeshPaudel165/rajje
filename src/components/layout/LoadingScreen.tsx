@@ -9,8 +9,8 @@ import {
 } from "react-native";
 import Svg, { Path } from "react-native-svg";
 import VehicleIcon from "../common/VehicleIcon";
-import Background from "../common/Background";
-import { theme } from "../../constants/theme";
+import StaticLightBackground from "../common/StaticLightBackground";
+import { lightTheme } from "../../theme"; // Always use light theme
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -101,7 +101,7 @@ const LoadingScreen = () => {
   );
 
   return (
-    <Background>
+    <StaticLightBackground>
       <Cloud style={{ transform: [{ translateX: cloudAnim1 }], top: "20%" }} />
       <Cloud style={{ transform: [{ translateX: cloudAnim2 }], top: "15%" }} />
 
@@ -115,9 +115,9 @@ const LoadingScreen = () => {
         ]}
       >
         <VehicleIcon
-          width={theme.logo.width}
-          height={theme.logo.height}
-          color={theme.colors.primary}
+          width={lightTheme.logo.width}
+          height={lightTheme.logo.height}
+          color={lightTheme.colors.primary}
         />
       </Animated.View>
 
@@ -129,7 +129,7 @@ const LoadingScreen = () => {
       <Animated.View style={[styles.copyrightContainer, { opacity: fadeAnim }]}>
         <Text style={styles.copyright}>{COPYRIGHT}</Text>
       </Animated.View>
-    </Background>
+    </StaticLightBackground>
   );
 };
 
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   appTitle: {
     fontSize: 42, // Increased size for better visibility
     fontWeight: "bold",
-    color: theme.colors.primary,
+    color: lightTheme.colors.primary,
     marginBottom: 12, // Increased spacing
     textShadowColor: "rgba(255,255,255,0.8)",
     textShadowOffset: { width: 1, height: 1 },
@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
   },
   appSubtitle: {
     fontSize: 18, // Increased from 16 for better readability
-    color: theme.colors.text,
+    color: lightTheme.colors.text,
     fontStyle: "italic",
     textShadowColor: "rgba(255,255,255,0.6)",
     textShadowOffset: { width: 0.5, height: 0.5 },
@@ -182,7 +182,7 @@ const styles = StyleSheet.create({
   },
   copyright: {
     textAlign: "center",
-    color: theme.colors.subText,
+    color: lightTheme.colors.subText,
     fontSize: 12,
     paddingHorizontal: 20, // Add padding for smaller screens
   },

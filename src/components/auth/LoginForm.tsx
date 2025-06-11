@@ -9,25 +9,26 @@ import {
   Alert,
   Modal,
 } from "react-native";
-import { theme } from "../../constants/theme";
+import { lightTheme } from "../../theme"; // Always use light theme
 import { globalStyles, CARD_WIDTH } from "../../styles/styles";
 import { auth } from "../../firebase";
 import {
   sendEmailVerification,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import PasswordRecoveryWrapper from "./PasswordRecoveryWrapper";
+import PasswordReset from "./PasswordReset";
 import NetInfo from "@react-native-community/netinfo";
 
-interface FormProps {
+interface LoginFormProps {
   onSubmit: Function;
 }
 
-const Form: React.FC<FormProps> = ({ onSubmit }) => {
+const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [showPasswordRecovery, setShowPasswordRecovery] = useState(false);
+  const [showPasswordReset, setShowPasswordReset] = useState(false);
+
   const [errors, setErrors] = useState({
     email: "",
     password: "",
@@ -62,10 +63,6 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
     return isValid;
   };
 
-  const handlePasswordRecovery = () => {
-    setShowPasswordRecovery(true);
-  };
-
   const handleLogin = async () => {
     const netState = await NetInfo.fetch();
     if (!netState.isConnected) {
@@ -93,6 +90,7 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
           );
           return;
         }
+        
         onSubmit();
       } catch (error) {
         console.log("Login error:", error);
@@ -130,7 +128,7 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
               }}
               keyboardType="email-address"
               autoCapitalize="none"
-              placeholderTextColor={theme.colors.subText}
+              placeholderTextColor={lightTheme.colors.subText}
             />
             {errors.email ? (
               <Text style={styles.errorText}>{errors.email}</Text>
@@ -152,7 +150,7 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
                   if (errors.password) setErrors({ ...errors, password: "" });
                 }}
                 secureTextEntry={!showPassword}
-                placeholderTextColor={theme.colors.subText}
+                placeholderTextColor={lightTheme.colors.subText}
               />
               <TouchableOpacity
                 style={styles.visibilityToggle}
@@ -170,7 +168,7 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
 
           <TouchableOpacity
             style={styles.forgotPasswordButton}
-            onPress={handlePasswordRecovery}
+            onPress={() => setShowPasswordReset(true)}
           >
             <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
           </TouchableOpacity>
@@ -186,21 +184,21 @@ const Form: React.FC<FormProps> = ({ onSubmit }) => {
       </ScrollView>
 
       <Modal
-        visible={showPasswordRecovery}
+        visible={showPasswordReset}
         animationType="slide"
         presentationStyle="pageSheet"
-        onRequestClose={() => setShowPasswordRecovery(false)}
+        onRequestClose={() => setShowPasswordReset(false)}
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalHeader}>
             <TouchableOpacity
               style={styles.closeButton}
-              onPress={() => setShowPasswordRecovery(false)}
+              onPress={() => setShowPasswordReset(false)}
             >
               <Text style={styles.closeButtonText}>✕ Close</Text>
             </TouchableOpacity>
           </View>
-          <PasswordRecoveryWrapper />
+          <PasswordReset />
         </View>
       </Modal>
     </>
@@ -215,11 +213,12 @@ const styles = StyleSheet.create({
   },
   card: {
     width: CARD_WIDTH,
+    backgroundColor: "rgba(255, 255, 255, 0.95)",
   },
   formTitle: {
     fontSize: 24,
     fontWeight: "bold",
-    color: theme.colors.primary,
+    color: lightTheme.colors.primary,
     marginBottom: 24,
     textAlign: "center",
   },
@@ -238,7 +237,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginBottom: 8,
-    color: theme.colors.text,
+    color: lightTheme.colors.text,
   },
   passwordInputWrapper: {
     flexDirection: "row",
@@ -250,7 +249,7 @@ const styles = StyleSheet.create({
     right: 16,
   },
   visibilityToggleText: {
-    color: theme.colors.primary,
+    color: lightTheme.colors.primary,
     fontSize: 14,
     fontWeight: "600",
   },
@@ -260,27 +259,27 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   forgotPasswordText: {
-    color: theme.colors.primary,
+    color: lightTheme.colors.primary,
     fontSize: 14,
     fontWeight: "600",
   },
   inputError: {
-    borderColor: theme.colors.error,
+    borderColor: lightTheme.colors.error,
   },
   errorText: {
-    color: theme.colors.error,
+    color: lightTheme.colors.error,
     fontSize: 12,
     marginTop: 4,
   },
   copyright: {
     marginTop: 24,
     fontSize: 12,
-    color: theme.colors.subText,
+    color: lightTheme.colors.subText,
     textAlign: "center",
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: theme.colors.background,
+    backgroundColor: lightTheme.colors.background,
   },
   modalHeader: {
     flexDirection: "row",
@@ -294,10 +293,10 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   closeButtonText: {
-    color: theme.colors.primary,
+    color: lightTheme.colors.primary,
     fontSize: 16,
     fontWeight: "600",
   },
 });
 
-export default Form;
+export default LoginForm;

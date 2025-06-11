@@ -7,7 +7,9 @@ import AuthScreen from "../screens/AuthScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import SettingsScreen from "../screens/SettingsScreen";
-import { theme } from "../constants/theme";
+import { theme } from "../theme";
+import { useTheme } from "../contexts/ThemeContext";
+import { useLanguage } from "../contexts/LanguageContext";
 
 // Define our types
 type RootStackParamList = {
@@ -28,6 +30,9 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 // Bottom tab navigator
 const MainTabNavigator = () => {
+  const { colors } = useTheme();
+  const { t } = useLanguage();
+
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -46,26 +51,26 @@ const MainTabNavigator = () => {
 
           return <Ionicons name={iconName} size={size} color={color} />;
         },
-        tabBarActiveTintColor: theme.colors.primary,
-        tabBarInactiveTintColor: "#666666",
-        headerShown: false,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
+          backgroundColor: colors.card,
+          borderTopColor: colors.border,
           borderTopWidth: 1,
-          borderColor: theme.colors.border,
-          backgroundColor: "white",
           elevation: 8,
           shadowColor: "#000",
           shadowOffset: { width: 0, height: -2 },
           shadowOpacity: 0.1,
           shadowRadius: 5,
         },
+        headerShown: false,
       })}
     >
       <Tab.Screen
         name="Home"
         component={DashboardScreen}
         options={{
-          tabBarLabel: "Home",
+          tabBarLabel: t("dashboard"),
         }}
       />
       <Tab.Screen
@@ -79,14 +84,14 @@ const MainTabNavigator = () => {
         name="Profile"
         component={ProfileScreen}
         options={{
-          tabBarLabel: "Profile",
+          tabBarLabel: t("profile"),
         }}
       />
       <Tab.Screen
         name="Settings"
         component={SettingsScreen}
         options={{
-          tabBarLabel: "Settings",
+          tabBarLabel: t("settings"),
         }}
       />
     </Tab.Navigator>

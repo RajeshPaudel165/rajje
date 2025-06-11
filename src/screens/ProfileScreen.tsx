@@ -9,17 +9,18 @@ import {
   Modal,
   FlatList,
   Platform,
-  useColorScheme,
   StatusBar,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { theme } from "../constants/theme";
+import { theme } from "../theme";
 import VehicleIcon from "../components/common/VehicleIcon";
-import Background from "../components/common/Background";
+import ThemeBackground from "../components/common/ThemeBackground";
 import { auth, db } from "../firebase";
 import { signOut, User, updateProfile, reload } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
+import { useTheme } from "../contexts/ThemeContext";
+import { useLanguage } from "../contexts/LanguageContext";
 
 const cities = ["Kathmandu", "Pokhara", "Bharatpur", "Nepalgunj", "Birgunj"];
 
@@ -41,7 +42,8 @@ const ProfileScreen: React.FC = () => {
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const navigation = useNavigation();
-  const colorScheme = useColorScheme;
+  const { colors } = useTheme();
+  const { t } = useLanguage();
 
   useEffect(() => {
     // Listen for auth state changes
@@ -332,81 +334,122 @@ const ProfileScreen: React.FC = () => {
 
   if (loading) {
     return (
-      <Background>
+      <ThemeBackground>
         <View
           style={[
             styles.container,
-            { justifyContent: "center", alignItems: "center" },
+            {
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: colors.background,
+            },
           ]}
         >
-          <Text style={styles.subtitle}>Loading profile...</Text>
+          <Text style={[styles.subtitle, { color: colors.text }]}>
+            {" "}
+            Loading profile...
+          </Text>
         </View>
-      </Background>
+      </ThemeBackground>
     );
   }
 
   return (
-    <Background>
+    <ThemeBackground>
       <StatusBar
         barStyle="dark-content"
         backgroundColor="transparent"
         translucent
       />
-      <View style={styles.container} key={refreshKey}>
+      <View
+        style={[styles.container, { backgroundColor: "transparent" }]}
+        key={refreshKey}
+      >
         <View style={styles.header}>
           <View style={styles.logoContainer}>
             <VehicleIcon
               width={theme.logoDashboard.width}
               height={theme.logoDashboard.height}
-              color={theme.colors.primary}
+              color={colors.primary}
             />
           </View>
         </View>
 
         <ScrollView style={styles.content}>
-          <View style={styles.profileSection}>
-            <Text style={styles.title}>User Profile</Text>
+          <View
+            style={[
+              styles.profileSection,
+              { backgroundColor: "rgba(255, 255, 255, 0.9)" },
+            ]}
+          >
+            <Text style={[styles.title, { color: colors.primary }]}>
+              {t("profile")}
+            </Text>
 
             {user ? (
               <View style={styles.userInfoContainer}>
                 <View style={styles.userInfo}>
-                  <Text style={styles.label}>Name:</Text>
-                  <Text style={styles.value}>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    {t("name")}:
+                  </Text>
+                  <Text style={[styles.value, { color: colors.textSecondary }]}>
                     {user.displayName || "Not set"}
                   </Text>
                 </View>
 
                 <View style={styles.userInfo}>
-                  <Text style={styles.label}>Email:</Text>
-                  <Text style={styles.value}>{user.email}</Text>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    {t("email")}:
+                  </Text>
+                  <Text style={[styles.value, { color: colors.textSecondary }]}>
+                    {user.email}
+                  </Text>
                 </View>
 
                 <View style={styles.userInfo}>
-                  <Text style={styles.label}>Date of Birth:</Text>
-                  <Text style={styles.value} key={`dob-${refreshKey}`}>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Date of Birth:
+                  </Text>
+                  <Text
+                    style={[styles.value, { color: colors.textSecondary }]}
+                    key={`dob-${refreshKey}`}
+                  >
                     {formatDate(userProfile.dateOfBirth)}
                   </Text>
                 </View>
 
                 <View style={styles.userInfo}>
-                  <Text style={styles.label}>Age:</Text>
-                  <Text style={styles.value} key={`age-${refreshKey}`}>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Age:
+                  </Text>
+                  <Text
+                    style={[styles.value, { color: colors.textSecondary }]}
+                    key={`age-${refreshKey}`}
+                  >
                     {calculateAge(userProfile.dateOfBirth)}
                   </Text>
                 </View>
 
                 <View style={styles.userInfo}>
-                  <Text style={styles.label}>City:</Text>
-                  <Text style={styles.value} key={`city-${refreshKey}`}>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    City:
+                  </Text>
+                  <Text
+                    style={[styles.value, { color: colors.textSecondary }]}
+                    key={`city-${refreshKey}`}
+                  >
                     {userProfile.city || "Not set"}
                   </Text>
                 </View>
 
                 <View style={styles.userInfo}>
-                  <Text style={styles.label}>Email Verified:</Text>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Email Verified:
+                  </Text>
                   <Text
                     style={[
                       styles.value,
+                      { color: colors.textSecondary },
                       user.emailVerified ? styles.verified : styles.unverified,
                     ]}
                   >
@@ -415,8 +458,10 @@ const ProfileScreen: React.FC = () => {
                 </View>
 
                 <View style={styles.userInfo}>
-                  <Text style={styles.label}>Member Since:</Text>
-                  <Text style={styles.value}>
+                  <Text style={[styles.label, { color: colors.text }]}>
+                    Member Since:
+                  </Text>
+                  <Text style={[styles.value, { color: colors.textSecondary }]}>
                     {user.metadata.creationTime
                       ? new Date(
                           user.metadata.creationTime
@@ -426,7 +471,9 @@ const ProfileScreen: React.FC = () => {
                 </View>
               </View>
             ) : (
-              <Text style={styles.subtitle}>Loading user information...</Text>
+              <Text style={[styles.subtitle, { color: colors.text }]}>
+                Loading user information...
+              </Text>
             )}
             <View style={styles.buttonContainer}>
               <View style={styles.buttonRow}>
@@ -546,7 +593,7 @@ const ProfileScreen: React.FC = () => {
           </TouchableOpacity>
         </Modal>
       </View>
-    </Background>
+    </ThemeBackground>
   );
 };
 
@@ -576,7 +623,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   profileSection: {
-    backgroundColor: "#FFFFFF", // Solid white background instead of transparent
+    backgroundColor: "rgba(255, 255, 255, 0.95)", // Will be overridden by dynamic color
     borderRadius: theme.borderRadius.medium,
     padding: 20,
     marginBottom: 16,
@@ -594,7 +641,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: "#333333", // Explicit dark color instead of theme color
+    color: "#333333", // Will be overridden by dynamic color
     lineHeight: 22,
   },
   userInfoContainer: {
@@ -611,12 +658,12 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#2C3E50", // Explicit dark color for better visibility
+    color: "#2C3E50", // Will be overridden by dynamic color
     flex: 1,
   },
   value: {
     fontSize: 16,
-    color: "#5A6C7D", // Explicit color instead of theme
+    color: "#5A6C7D", // Will be overridden by dynamic color
     flex: 2,
     textAlign: "right",
   },
@@ -774,6 +821,16 @@ const styles = StyleSheet.create({
   selectedIndicator: {
     fontSize: 16,
     color: theme.colors.primary,
+    fontWeight: "600",
+  },
+  // Test button styles (development only)
+  testButton: {
+    backgroundColor: "#9B59B6",
+    borderColor: "#8E44AD",
+  },
+  testButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
     fontWeight: "600",
   },
 });

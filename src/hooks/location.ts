@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import * as Location from "expo-location";
 
 export function useCurrentLocation() {
-  const [location, setLocation] = useState<Location.LocationObject | null>(null);
+  const [location, setLocation] = useState<Location.LocationObject | null>(
+    null
+  );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
@@ -21,9 +23,10 @@ export function useCurrentLocation() {
           timeInterval: 10000, // Update every 10 seconds
           distanceInterval: 1, // Update every 10 meters
         },
-        (loc) =>{setLocation(loc);},
-        );
-      
+        (loc) => {
+          setLocation(loc);
+        }
+      );
     })();
     return () => {
       if (subscription) {

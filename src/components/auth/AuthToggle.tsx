@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import { theme } from "../../constants/theme";
+import { theme } from "../../theme";
 
 interface AuthToggleProps {
   isSignup: boolean;
@@ -20,7 +20,7 @@ const AuthToggle: React.FC<AuthToggleProps> = ({ isSignup, onToggle }) => {
             !isSignup && styles.activeToggleTabText,
           ]}
         >
-          Sign In
+          {"signin"}
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
@@ -30,7 +30,7 @@ const AuthToggle: React.FC<AuthToggleProps> = ({ isSignup, onToggle }) => {
         <Text
           style={[styles.toggleTabText, isSignup && styles.activeToggleTabText]}
         >
-          Sign Up
+          {"signup"}
         </Text>
       </TouchableOpacity>
     </View>

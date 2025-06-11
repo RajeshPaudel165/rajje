@@ -1,5 +1,5 @@
 import { StyleSheet, Dimensions } from "react-native";
-import { theme } from "../constants/theme";
+import { lightTheme } from "../theme";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 export const CARD_WIDTH = Math.min(SCREEN_WIDTH - 32, 380);
@@ -12,11 +12,12 @@ export const globalStyles = StyleSheet.create({
     padding: 15,
     paddingTop: 0,
     width: "100%",
+    backgroundColor: "transparent",
   },
   card: {
     width: CARD_WIDTH,
-    backgroundColor: "rgba(255, 255, 255, 0.95)",
-    borderRadius: theme.borderRadius.large,
+    backgroundColor: "rgba(255, 255, 255, 0.85)",
+    borderRadius: lightTheme.borderRadius.large,
     padding: 24,
     alignItems: "center",
     shadowColor: "#000",
@@ -31,18 +32,18 @@ export const globalStyles = StyleSheet.create({
     width: "100%",
     height: 48,
     backgroundColor: "#f8f9fa",
-    borderRadius: theme.borderRadius.medium,
+    borderRadius: lightTheme.borderRadius.medium,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: theme.colors.text,
+    color: lightTheme.colors.text,
     borderWidth: 1,
     borderColor: "#e1e4e8",
   },
   button: {
     width: "100%",
     height: 48,
-    backgroundColor: theme.colors.primary,
-    borderRadius: theme.borderRadius.medium,
+    backgroundColor: lightTheme.colors.primary,
+    borderRadius: lightTheme.borderRadius.medium,
     alignItems: "center",
     justifyContent: "center",
     marginTop: 12,

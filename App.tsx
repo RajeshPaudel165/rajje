@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import { LoadingScreen } from "./src/components";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { NavigationContainer } from "@react-navigation/native";
-import { ThemeProvider } from "./src/theme/ThemeContext";
-import { LightTheme } from "./src/theme/themes";
+import { ThemeProvider } from "./src/contexts/ThemeContext";
+import { LanguageProvider } from "./src/contexts/LanguageContext";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -20,14 +20,16 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      {isLoading ? (
-        <LoadingScreen />
-      ) : (
-        <NavigationContainer theme={LightTheme}>
-          <AppNavigator />
-        </NavigationContainer>
-      )}
-      <StatusBar style="dark" />
+      <LanguageProvider>
+        {isLoading ? (
+          <LoadingScreen />
+        ) : (
+          <NavigationContainer>
+            <AppNavigator />
+          </NavigationContainer>
+        )}
+        <StatusBar style="dark" />
+      </LanguageProvider>
     </ThemeProvider>
   );
 }
