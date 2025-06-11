@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react";
+import { View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { globalStyles } from "../../styles/styles";
 import { useTheme } from "../../contexts/ThemeContext";
@@ -21,7 +22,7 @@ const ThemeBackground: React.FC<ThemeBackgroundProps> = ({ children }) => {
       end={{ x: 0, y: 1 }}
       style={globalStyles.gradient}
     >
-      {children}
+      <View style={{ flex: 1 }}>{children}</View>
     </LinearGradient>
   );
 };

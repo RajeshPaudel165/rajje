@@ -1,15 +1,17 @@
-import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
-
+import { User } from "firebase/auth";
 import AuthScreen from "../screens/AuthScreen";
 import DashboardScreen from "../screens/DashboardScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import SettingsScreen from "../screens/SettingsScreen";
-import { theme } from "../theme";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLanguage } from "../contexts/LanguageContext";
+
+interface AppNavigatorProps {
+  user: User | null;
+}
 
 // Define our types
 type RootStackParamList = {
@@ -99,9 +101,14 @@ const MainTabNavigator = () => {
 };
 
 // Root stack navigator
-const AppNavigator = () => {
+// Root stack navigator
+const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
+  // Determine which screen to show first based on authentication status
+  const initialRouteName = user ? "MainApp" : "Auth";
+
   return (
     <Stack.Navigator
+      initialRouteName={initialRouteName}
       screenOptions={{
         headerShown: false,
       }}
