@@ -408,7 +408,7 @@ const ProfileScreen: React.FC = () => {
 
                 <View style={styles.userInfo}>
                   <Text style={[styles.label, { color: colors.text }]}>
-                    Date of Birth:
+                    {t("dateOfBirth")}:
                   </Text>
                   <Text
                     style={[styles.value, { color: colors.textSecondary }]}
@@ -420,7 +420,7 @@ const ProfileScreen: React.FC = () => {
 
                 <View style={styles.userInfo}>
                   <Text style={[styles.label, { color: colors.text }]}>
-                    Age:
+                    {t("age")}:
                   </Text>
                   <Text
                     style={[styles.value, { color: colors.textSecondary }]}
@@ -432,7 +432,7 @@ const ProfileScreen: React.FC = () => {
 
                 <View style={styles.userInfo}>
                   <Text style={[styles.label, { color: colors.text }]}>
-                    City:
+                    {t("city")}:
                   </Text>
                   <Text
                     style={[styles.value, { color: colors.textSecondary }]}
@@ -444,7 +444,7 @@ const ProfileScreen: React.FC = () => {
 
                 <View style={styles.userInfo}>
                   <Text style={[styles.label, { color: colors.text }]}>
-                    Email Verified:
+                    {t("emailVerified")}:
                   </Text>
                   <Text
                     style={[
@@ -459,7 +459,7 @@ const ProfileScreen: React.FC = () => {
 
                 <View style={styles.userInfo}>
                   <Text style={[styles.label, { color: colors.text }]}>
-                    Member Since:
+                    {t("memberSince")}:
                   </Text>
                   <Text style={[styles.value, { color: colors.textSecondary }]}>
                     {user.metadata.creationTime
@@ -472,7 +472,7 @@ const ProfileScreen: React.FC = () => {
               </View>
             ) : (
               <Text style={[styles.subtitle, { color: colors.text }]}>
-                Loading user information...
+                {t("Loading user information...")}:
               </Text>
             )}
             <View style={styles.buttonContainer}>
@@ -485,7 +485,7 @@ const ProfileScreen: React.FC = () => {
                   ]}
                   onPress={handleEditProfile}
                 >
-                  <Text style={styles.editButtonText}>Edit</Text>
+                  <Text style={styles.editButtonText}> {t("edit")}:</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -496,7 +496,7 @@ const ProfileScreen: React.FC = () => {
                   ]}
                   onPress={handleSignOut}
                 >
-                  <Text style={styles.signOutButtonText}>Sign Out</Text>
+                  <Text style={styles.signOutButtonText}> {t("signOut")}:</Text>
                 </TouchableOpacity>
               </View>
 

@@ -27,6 +27,7 @@ const SettingsScreen: React.FC = () => {
   const { isDark, colors, themeMode, setTheme } = useTheme();
   const { currentLanguage, setLanguage, t, availableLanguages } = useLanguage();
 
+  // Only keeping light mode option since dark mode is disabled
   const themeOptions = [
     {
       key: "light",
@@ -34,6 +35,7 @@ const SettingsScreen: React.FC = () => {
       icon: "sunny",
       description: "Bright and clean",
     },
+    /*
     {
       key: "dark",
       label: t("dark"),
@@ -46,10 +48,12 @@ const SettingsScreen: React.FC = () => {
       icon: "phone-portrait",
       description: "Follows system",
     },
+    */
   ];
 
   const handleThemeChange = (selectedTheme: "light" | "dark" | "auto") => {
-    setTheme(selectedTheme);
+    // Always set to light theme regardless of selection
+    setTheme("light");
     setThemeModalVisible(false);
   };
 

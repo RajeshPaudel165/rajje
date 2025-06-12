@@ -1,30 +1,33 @@
-import React, { ReactNode } from "react";
-import { View } from "react-native";
+import React from "react";
+import { View, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { globalStyles } from "../../styles/styles";
 import { useTheme } from "../../contexts/ThemeContext";
 
 interface ThemeBackgroundProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 const ThemeBackground: React.FC<ThemeBackgroundProps> = ({ children }) => {
-  const { isDark } = useTheme();
+  const { colors } = useTheme();
+  // isDark is removed since we're always using light mode
 
   return (
     <LinearGradient
-      colors={
-        isDark
-          ? ["#1a1a1a", "#2d2d2d", "#404040"] // Dark gradient
-          : ["#87ceeb", "#b0e0e6", "#e0f6ff"] // Light gradient
-      }
-      start={{ x: 0, y: 0 }}
-      end={{ x: 0, y: 1 }}
-      style={globalStyles.gradient}
+      colors={["#E8F0FE", "#D4E4FA"]} // Always use light mode colors
+      style={styles.container}
     >
-      <View style={{ flex: 1 }}>{children}</View>
+      <View style={styles.contentContainer}>{children}</View>
     </LinearGradient>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    flex: 1,
+  },
+});
 
 export default ThemeBackground;

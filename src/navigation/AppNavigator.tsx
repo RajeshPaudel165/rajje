@@ -79,7 +79,7 @@ const MainTabNavigator = () => {
         name="History"
         component={DashboardScreen}
         options={{
-          tabBarLabel: "History",
+          tabBarLabel: t("history"),
         }}
       />
       <Tab.Screen

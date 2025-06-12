@@ -96,6 +96,7 @@ export const lightTheme: Theme = {
   },
 };
 
+/* Commenting out darkTheme as per requirement to disable dark mode
 export const darkTheme: Theme = {
   colors: {
     primary: "#4A90E2", // Lighter blue for dark mode
@@ -144,6 +145,7 @@ export const darkTheme: Theme = {
     height: 120,
   },
 };
+*/
 
 // Default export for compatibility
 export const theme = lightTheme;
