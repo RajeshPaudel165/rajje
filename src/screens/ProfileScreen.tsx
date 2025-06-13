@@ -21,6 +21,7 @@ import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLanguage } from "../contexts/LanguageContext";
+import Icon from "react-native-vector-icons/Ionicons";
 
 const cities = ["Kathmandu", "Pokhara", "Bharatpur", "Nepalgunj", "Birgunj"];
 
@@ -320,18 +321,6 @@ const ProfileScreen: React.FC = () => {
     }
   };
 
-  const renderCityItem = ({ item }: { item: string }) => (
-    <TouchableOpacity
-      style={styles.dropdownItem}
-      onPress={() => handleCitySelect(item)}
-    >
-      <Text style={styles.dropdownItemText}>{item}</Text>
-      {userProfile.city === item && (
-        <Text style={styles.selectedIndicator}>✓</Text>
-      )}
-    </TouchableOpacity>
-  );
-
   if (loading) {
     return (
       <ThemeBackground>
@@ -565,32 +554,114 @@ const ProfileScreen: React.FC = () => {
 
         {/* City Selection Modal */}
         <Modal
-          visible={showCityDropdown}
+          animationType="fade"
           transparent={true}
-          animationType="slide"
+          visible={showCityDropdown}
           onRequestClose={() => setShowCityDropdown(false)}
+          statusBarTranslucent={true}
         >
-          <TouchableOpacity
-            style={styles.modalOverlay}
-            activeOpacity={1}
-            onPress={() => setShowCityDropdown(false)}
-          >
-            <View style={styles.dropdownModal}>
-              <View style={styles.dropdownHeader}>
-                <Text style={styles.dropdownTitle}>Select City</Text>
-                <TouchableOpacity onPress={() => setShowCityDropdown(false)}>
-                  <Text style={styles.closeButton}>✕</Text>
+          <View style={styles.modalOverlay}>
+            <View
+              style={[
+                styles.modernModalContent,
+                { backgroundColor: colors.card },
+              ]}
+            >
+              <View style={styles.modalHeader}>
+                <Text style={[styles.modernModalTitle, { color: colors.text }]}>
+                  {t("selectCity")}
+                </Text>
+                <TouchableOpacity
+                  style={[
+                    styles.closeButton,
+                    { backgroundColor: colors.surface },
+                  ]}
+                  onPress={() => setShowCityDropdown(false)}
+                  activeOpacity={0.7}
+                >
+                  <Icon name="close" size={20} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
-              <FlatList
-                data={cities}
-                renderItem={renderCityItem}
-                keyExtractor={(item) => item}
-                style={styles.dropdownList}
-                showsVerticalScrollIndicator={false}
-              />
+
+              <View style={styles.optionsContainer}>
+                {cities.map((city, index) => (
+                  <TouchableOpacity
+                    key={city}
+                    style={[
+                      styles.modernModalOption,
+                      {
+                        backgroundColor:
+                          userProfile.city === city
+                            ? colors.primary + "10"
+                            : "transparent",
+                        borderColor:
+                          userProfile.city === city
+                            ? colors.primary
+                            : colors.border,
+                      },
+                      index !== cities.length - 1 && styles.optionMargin,
+                    ]}
+                    onPress={() => handleCitySelect(city)}
+                    activeOpacity={0.8}
+                  >
+                    <View
+                      style={[
+                        styles.iconContainer,
+                        {
+                          backgroundColor:
+                            userProfile.city === city
+                              ? colors.primary
+                              : colors.surface,
+                        },
+                      ]}
+                    >
+                      <Icon
+                        name="location"
+                        size={22}
+                        color={
+                          userProfile.city === city ? "#FFFFFF" : colors.primary
+                        }
+                      />
+                    </View>
+                    <View style={styles.optionTextContainer}>
+                      <Text
+                        style={[
+                          styles.modernModalOptionText,
+                          {
+                            color:
+                              userProfile.city === city
+                                ? colors.primary
+                                : colors.text,
+                            fontWeight:
+                              userProfile.city === city ? "600" : "500",
+                          },
+                        ]}
+                      >
+                        {city}
+                      </Text>
+                      <Text
+                        style={[
+                          styles.citySubtext,
+                          { color: colors.textSecondary },
+                        ]}
+                      >
+                        {t("cityInNepal") || "City in Nepal"}
+                      </Text>
+                    </View>
+                    {userProfile.city === city && (
+                      <View style={styles.checkmarkContainer}>
+                        <Icon
+                          name="checkmark-circle"
+                          size={24}
+                          color={colors.primary}
+                        />
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
             </View>
-          </TouchableOpacity>
+          </View>
         </Modal>
       </View>
     </ThemeBackground>
@@ -764,64 +835,81 @@ const styles = StyleSheet.create({
   // City Dropdown Styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    justifyContent: "flex-end",
-  },
-  dropdownModal: {
-    backgroundColor: "#FFFFFF",
-    borderTopLeftRadius: theme.borderRadius.large,
-    borderTopRightRadius: theme.borderRadius.large,
-    maxHeight: "60%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-    color: "#000000",
-  },
-  dropdownHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
     alignItems: "center",
     padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 56, 147, 0.2)",
-    backgroundColor: "#FFFFFF", // Ensure solid background
   },
-  dropdownTitle: {
-    fontSize: 20,
-    fontWeight: "600",
-    color: theme.colors.primary,
+  modernModalContent: {
+    width: "100%",
+    maxWidth: 400,
+    borderRadius: 20,
+    padding: 0,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
   },
-  closeButton: {
-    fontSize: 20,
-    color: "#666666", // Explicit color for better visibility
-    fontWeight: "600",
-    paddingHorizontal: 8,
-  },
-  dropdownList: {
-    maxHeight: 300,
-    backgroundColor: "#FFFFFF", // Solid background
-  },
-  dropdownItem: {
+  modalHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 56, 147, 0.1)",
-    backgroundColor: "#FFFFFF", // Ensure each item has solid background
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 20,
   },
-  dropdownItemText: {
-    fontSize: 16,
-    color: "#2C3E50", // Explicit dark color for better visibility
+  modernModalTitle: {
+    fontSize: 22,
+    fontWeight: "700",
     flex: 1,
   },
-  selectedIndicator: {
-    fontSize: 16,
-    color: theme.colors.primary,
-    fontWeight: "600",
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  optionsContainer: {
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+  },
+  modernModalOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    borderWidth: 2,
+    backgroundColor: "transparent",
+  },
+  optionMargin: {
+    marginBottom: 12,
+  },
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  optionTextContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  modernModalOptionText: {
+    fontSize: 17,
+    lineHeight: 22,
+  },
+  citySubtext: {
+    fontSize: 14,
+    marginTop: 2,
+    opacity: 0.7,
+  },
+  checkmarkContainer: {
+    marginLeft: 12,
   },
   // Test button styles (development only)
   testButton: {

@@ -22,6 +22,7 @@ import {
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 import NetInfo from "@react-native-community/netinfo";
+import Icon from "react-native-vector-icons/Ionicons";
 
 interface SignupFormProps {
   onSwitchToLogin?: () => void;
@@ -254,15 +255,6 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
     }
   };
 
-  const renderCityItem = ({ item }: { item: string }) => (
-    <TouchableOpacity
-      style={styles.dropdownItem}
-      onPress={() => handleCitySelect(item)}
-    >
-      <Text style={styles.dropdownItemText}>{item}</Text>
-    </TouchableOpacity>
-  );
-
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
@@ -484,27 +476,97 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
         transparent={true}
         animationType="fade"
         onRequestClose={() => setShowCityDropdown(false)}
+        statusBarTranslucent={true}
       >
-        <TouchableOpacity
-          style={styles.modalOverlay}
-          activeOpacity={1}
-          onPress={() => setShowCityDropdown(false)}
-        >
-          <View style={styles.dropdownModal}>
-            <View style={styles.dropdownHeader}>
-              <Text style={styles.dropdownTitle}>Select City</Text>
-              <TouchableOpacity onPress={() => setShowCityDropdown(false)}>
-                <Text style={styles.closeButton}>✕</Text>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modernModalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modernModalTitle}>Select City</Text>
+              <TouchableOpacity
+                style={styles.closeButton}
+                onPress={() => setShowCityDropdown(false)}
+                activeOpacity={0.7}
+              >
+                <Icon
+                  name="close"
+                  size={20}
+                  color={lightTheme.colors.subText}
+                />
               </TouchableOpacity>
             </View>
-            <FlatList
-              data={cities}
-              renderItem={renderCityItem}
-              keyExtractor={(item) => item}
-              style={styles.dropdownList}
-            />
+
+            <View style={styles.optionsContainer}>
+              {cities.map((city, index) => (
+                <TouchableOpacity
+                  key={city}
+                  style={[
+                    styles.modernModalOption,
+                    {
+                      backgroundColor:
+                        selectedCity === city
+                          ? lightTheme.colors.primary + "10"
+                          : "transparent",
+                      borderColor:
+                        selectedCity === city
+                          ? lightTheme.colors.primary
+                          : "rgba(0, 56, 147, 0.3)",
+                    },
+                  ]}
+                  onPress={() => handleCitySelect(city)}
+                  activeOpacity={0.8}
+                >
+                  <View
+                    style={[
+                      styles.iconContainer,
+                      {
+                        backgroundColor:
+                          selectedCity === city
+                            ? lightTheme.colors.primary
+                            : "#f5f5f5",
+                      },
+                    ]}
+                  >
+                    <Icon
+                      name="location"
+                      size={22}
+                      color={
+                        selectedCity === city
+                          ? "#FFFFFF"
+                          : lightTheme.colors.primary
+                      }
+                    />
+                  </View>
+                  <View style={styles.optionTextContainer}>
+                    <Text
+                      style={[
+                        styles.modernModalOptionText,
+                        {
+                          color:
+                            selectedCity === city
+                              ? lightTheme.colors.primary
+                              : lightTheme.colors.text,
+                          fontWeight: selectedCity === city ? "600" : "500",
+                        },
+                      ]}
+                    >
+                      {city}
+                    </Text>
+                    <Text style={styles.citySubtext}>City in Nepal</Text>
+                  </View>
+                  {selectedCity === city && (
+                    <View style={styles.checkmarkContainer}>
+                      <Icon
+                        name="checkmark-circle"
+                        size={24}
+                        color={lightTheme.colors.primary}
+                      />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
     </ScrollView>
   );
@@ -596,12 +658,93 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: lightTheme.colors.subText,
   },
+  // Modern City Dropdown Styles
   modalOverlay: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
     justifyContent: "center",
     alignItems: "center",
+    padding: 20,
   },
+  modernModalContent: {
+    width: "100%",
+    maxWidth: 400,
+    borderRadius: 20,
+    padding: 0,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.25,
+    shadowRadius: 20,
+    elevation: 10,
+    backgroundColor: "white",
+  },
+  modalHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(0, 56, 147, 0.1)",
+  },
+  modernModalTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    flex: 1,
+    color: lightTheme.colors.primary,
+  },
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+  },
+  optionsContainer: {
+    paddingHorizontal: 24,
+    paddingBottom: 24,
+    paddingTop: 8,
+  },
+  modernModalOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    borderWidth: 2,
+    backgroundColor: "transparent",
+    marginBottom: 12,
+  },
+  iconContainer: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: 16,
+  },
+  optionTextContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  modernModalOptionText: {
+    fontSize: 17,
+    lineHeight: 22,
+    color: lightTheme.colors.text,
+    fontWeight: "500",
+  },
+  citySubtext: {
+    fontSize: 14,
+    marginTop: 2,
+    opacity: 0.7,
+    color: lightTheme.colors.subText,
+  },
+  checkmarkContainer: {
+    marginLeft: 12,
+  },
+  // Old City Dropdown Styles (can be removed after testing)
   dropdownModal: {
     backgroundColor: "white",
     borderRadius: lightTheme.borderRadius.medium,
@@ -626,7 +769,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: lightTheme.colors.primary,
   },
-  closeButton: {
+  buttonClose: {
     fontSize: 18,
     color: lightTheme.colors.subText,
     fontWeight: "600",
