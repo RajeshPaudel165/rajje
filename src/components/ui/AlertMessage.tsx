@@ -10,7 +10,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { lightTheme } from "../../theme";
+import { lightTheme } from "../../theme/theme";
 
 const { width } = Dimensions.get("window");
 

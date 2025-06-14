@@ -7,9 +7,9 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
-import { lightTheme } from "../../theme";
+import { lightTheme } from "../../theme/theme";
 import { globalStyles, CARD_WIDTH } from "../../styles/styles";
-import { auth } from "../../firebase";
+import { auth } from "../../services/firebase";
 import {
   sendPasswordResetEmail,
   fetchSignInMethodsForEmail,

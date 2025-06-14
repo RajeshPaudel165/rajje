@@ -7,7 +7,7 @@ import {
   Platform,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { lightTheme } from "../../theme";
+import { lightTheme } from "../../theme/theme";
 import { globalStyles } from "../../styles/styles";
 
 interface DatePickerProps {

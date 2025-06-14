@@ -9,7 +9,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import { lightTheme } from "../../theme";
+import { lightTheme } from "../../theme/theme";
 import { globalStyles } from "../../styles/styles";
 
 interface CityPickerProps {

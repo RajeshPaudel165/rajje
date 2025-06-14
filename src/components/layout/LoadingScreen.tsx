@@ -10,7 +10,7 @@ import {
 import Svg, { Path } from "react-native-svg";
 import VehicleIcon from "../common/VehicleIcon";
 import StaticLightBackground from "../common/StaticLightBackground";
-import { lightTheme } from "../../theme"; // Always use light theme
+import { lightTheme } from "../../theme/theme"; // Always use light theme
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 

@@ -2,12 +2,12 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { User } from "firebase/auth";
-import AuthScreen from "../screens/AuthScreen";
-import DashboardScreen from "../screens/DashboardScreen";
-import HistoryScreen from "../screens/HistoryScreen";
-import ProfileScreen from "../screens/ProfileScreen";
-import SettingsScreen from "../screens/SettingsScreen";
-import FAQsScreen from "../screens/FAQsScreen";
+import AuthScreen from "../screens/auth/AuthScreen";
+import DashboardScreen from "../screens/main/DashboardScreen";
+import HistoryScreen from "../screens/main/HistoryScreen";
+import ProfileScreen from "../screens/settings/ProfileScreen";
+import SettingsScreen from "../screens/settings/SettingsScreen";
+import FAQsScreen from "../screens/main/FAQsScreen";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLanguage } from "../contexts/LanguageContext";
 

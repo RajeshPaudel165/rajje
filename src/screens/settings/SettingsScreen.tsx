@@ -13,14 +13,13 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { theme } from "../theme";
-import { globalStyles } from "../styles/styles";
-import VehicleIcon from "../components/common/VehicleIcon";
-import ThemeBackground from "../components/common/ThemeBackground";
+import { theme } from "@theme";
+import { globalStyles } from "@styles";
+import VehicleIcon from "@components/common/VehicleIcon";
+import ThemeBackground from "@components/common/ThemeBackground";
 import Icon from "react-native-vector-icons/Ionicons";
-
-import { useTheme } from "../contexts/ThemeContext";
-import { useLanguage } from "../contexts/LanguageContext";
+import { useTheme } from "@contexts/ThemeContext";
+import { useLanguage } from "@contexts/LanguageContext";
 
 // Define the navigation type
 type RootStackParamList = {

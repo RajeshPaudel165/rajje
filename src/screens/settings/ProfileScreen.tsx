@@ -12,15 +12,15 @@ import {
   StatusBar,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { theme } from "../theme";
-import VehicleIcon from "../components/common/VehicleIcon";
-import ThemeBackground from "../components/common/ThemeBackground";
-import { auth, db } from "../firebase";
+import { theme } from "@theme";
+import VehicleIcon from "@components/common/VehicleIcon";
+import ThemeBackground from "@components/common/ThemeBackground";
+import { auth, db } from "@services/firebase";
 import { signOut, User, updateProfile, reload } from "firebase/auth";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 import { useNavigation } from "@react-navigation/native";
-import { useTheme } from "../contexts/ThemeContext";
-import { useLanguage } from "../contexts/LanguageContext";
+import { useTheme } from "@contexts/ThemeContext";
+import { useLanguage } from "@contexts/LanguageContext";
 import Icon from "react-native-vector-icons/Ionicons";
 
 const cities = ["Kathmandu", "Pokhara", "Bharatpur", "Nepalgunj", "Birgunj"];

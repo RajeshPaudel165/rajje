@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import MapView, { PROVIDER_GOOGLE, MAP_TYPES } from 'react-native-maps';
-import { useCurrentLocation } from "../hooks/location";
+import { useCurrentLocation } from "@hooks/location";
 import Icon from "react-native-vector-icons/Ionicons";
 
 const DashboardScreen: React.FC = () => {

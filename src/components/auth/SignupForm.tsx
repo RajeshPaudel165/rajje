@@ -7,7 +7,7 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
-import { lightTheme } from "../../theme";
+import { lightTheme } from "../../theme/theme";
 import { globalStyles, CARD_WIDTH } from "../../styles/styles";
 import {
   createUserWithEmailAndPassword,
@@ -15,7 +15,7 @@ import {
   sendEmailVerification,
 } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
-import { auth, db } from "../../firebase";
+import { auth, db } from "../../services/firebase";
 import NetInfo from "@react-native-community/netinfo";
 import { FirebaseError } from "firebase/app";
 import AlertMessage from "../ui/AlertMessage";

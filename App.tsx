@@ -7,7 +7,7 @@ import { ThemeProvider } from "./src/contexts/ThemeContext";
 import { LanguageProvider } from "./src/contexts/LanguageContext";
 import { LightTheme } from "./src/theme/themes";
 import { onAuthStateChanged, User } from "firebase/auth";
-import { auth } from "./src/firebase";
+import { auth } from "./src/services/firebase";
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);

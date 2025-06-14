@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Image } from "react-native";
 import LogoSvg from "../../../assets/logo.svg";
-import { theme } from "../../theme";
+import { theme } from "../../theme/theme";
 
 interface VehicleIconProps {
   width?: number;

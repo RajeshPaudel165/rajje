@@ -8,9 +8,9 @@ import {
   ScrollView,
   Modal,
 } from "react-native";
-import { lightTheme } from "../../theme"; // Always use light theme
+import { lightTheme } from "../../theme/theme"; // Always use light theme
 import { globalStyles, CARD_WIDTH } from "../../styles/styles";
-import { auth } from "../../firebase";
+import { auth } from "../../services/firebase";
 import {
   sendEmailVerification,
   signInWithEmailAndPassword,

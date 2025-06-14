@@ -1,5 +1,5 @@
 import { StyleSheet, Dimensions } from "react-native";
-import { lightTheme } from "../theme";
+import { lightTheme } from "../theme/theme";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 export const CARD_WIDTH = Math.min(SCREEN_WIDTH - 32, 380);

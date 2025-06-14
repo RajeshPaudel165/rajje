@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { View, StyleSheet, Animated } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import LoginForm from "../components/auth/LoginForm";
-import SignupForm from "../components/auth/SignupForm";
-import VehicleIcon from "../components/common/VehicleIcon";
-import AuthToggle from "../components/auth/AuthToggle";
-import StaticLightBackground from "../components/common/StaticLightBackground";
-import { useLoginAnimation } from "../hooks/useLoginAnimation";
-import { globalStyles } from "../styles/styles";
-import { lightTheme } from "../theme"; // Always use light theme
-import { useLanguage } from "../contexts/LanguageContext";
+import LoginForm from "@components/auth/LoginForm";
+import SignupForm from "@components/auth/SignupForm";
+import VehicleIcon from "@components/common/VehicleIcon";
+import AuthToggle from "@components/auth/AuthToggle";
+import StaticLightBackground from "@components/common/StaticLightBackground";
+import { useLoginAnimation } from "@hooks/useLoginAnimation";
+import { globalStyles } from "@styles";
+import { lightTheme } from "@theme"; // Always use light theme
+import { useLanguage } from "@contexts/LanguageContext";
 
 const AuthScreen: React.FC = () => {
   const [isSignup, setIsSignup] = useState(false);

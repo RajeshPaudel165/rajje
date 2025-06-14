@@ -1,8 +1,8 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
-import { useTheme } from "../contexts/ThemeContext";
-import { useLanguage } from "../contexts/LanguageContext";
-import ThemeBackground from "../components/common/ThemeBackground";
+import { useTheme } from "@contexts/ThemeContext";
+import { useLanguage } from "@contexts/LanguageContext";
+import ThemeBackground from "@components/common/ThemeBackground";
 
 const HistoryScreen: React.FC = () => {
   const { colors } = useTheme();

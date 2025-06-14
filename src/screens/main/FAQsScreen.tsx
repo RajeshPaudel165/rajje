@@ -9,9 +9,9 @@ import {
   Platform,
   UIManager,
 } from "react-native";
-import { useTheme } from "../contexts/ThemeContext";
-import { useLanguage } from "../contexts/LanguageContext";
-import ThemeBackground from "../components/common/ThemeBackground";
+import { useTheme } from "@contexts/ThemeContext";
+import { useLanguage } from "@contexts/LanguageContext";
+import ThemeBackground from "@components/common/ThemeBackground";
 import Icon from "react-native-vector-icons/Ionicons";
 
 // Enable LayoutAnimation for Android
