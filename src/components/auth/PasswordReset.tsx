@@ -6,18 +6,75 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert,
 } from "react-native";
 import { lightTheme } from "../../theme";
 import { globalStyles, CARD_WIDTH } from "../../styles/styles";
 import { auth } from "../../firebase";
-import { sendPasswordResetEmail } from "firebase/auth";
+import {
+  sendPasswordResetEmail,
+  fetchSignInMethodsForEmail,
+} from "firebase/auth";
+import { FirebaseError } from "firebase/app";
+import NetInfo from "@react-native-community/netinfo";
+import AlertMessage from "../ui/AlertMessage";
+
+/**
+ * Get a user-friendly error message for Firebase password reset errors
+ */
+const getFirebaseErrorMessage = (error: FirebaseError): string => {
+  switch (error.code) {
+    case "auth/invalid-email":
+      return "The email address is not valid.";
+    case "auth/user-not-found":
+      return "No account found with this email. Please check your email or sign up.";
+    case "auth/too-many-requests":
+      return "Too many password reset attempts. Please try again later.";
+    case "auth/network-request-failed":
+      return "Network error. Please check your connection and try again.";
+    case "auth/missing-android-pkg-name":
+    case "auth/missing-ios-bundle-id":
+    case "auth/missing-continue-uri":
+      return "An internal configuration error occurred. Please contact support.";
+    default:
+      // Don't show error code or message
+      return "Something went wrong. Please try again later.";
+  }
+};
 
 const PasswordReset: React.FC = () => {
   const [email, setEmail] = useState("");
   const [errors, setErrors] = useState({
     email: "",
   });
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: "",
+    message: "",
+    type: "info" as "success" | "error" | "warning" | "info",
+    buttons: [
+      {
+        text: "OK",
+        onPress: () => {},
+        style: "default" as "default" | "cancel" | "destructive",
+      },
+    ],
+  });
+
+  const showAlert = (
+    title: string,
+    message: string,
+    type: "success" | "error" | "warning" | "info" = "info",
+    buttons = [
+      {
+        text: "OK",
+        onPress: () => {},
+        style: "default" as "default" | "cancel" | "destructive",
+      },
+    ]
+  ) => {
+    setAlertConfig({ title, message, type, buttons });
+    setAlertVisible(true);
+  };
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -43,19 +100,53 @@ const PasswordReset: React.FC = () => {
   };
 
   const handlePasswordReset = async () => {
+    // Check network connectivity
+    const netState = await NetInfo.fetch();
+    if (!netState.isConnected) {
+      showAlert(
+        "Connection Error",
+        "No internet connection. Please check your connection and try again.",
+        "error"
+      );
+      return;
+    }
+
     if (validateForm()) {
       try {
-        await sendPasswordResetEmail(auth, email);
-        Alert.alert(
-          "Success",
-          "Password reset email sent to your email address."
+        // First check if the email exists in the authentication system
+        const methods = await fetchSignInMethodsForEmail(auth, email.trim());
+
+        if (methods.length === 0) {
+          // No account exists with this email
+          showAlert(
+            "Account Not Found",
+            "No account found with this email address. Please check your email or sign up.",
+            "warning"
+          );
+          return;
+        }
+
+        // If the email exists, send the password reset email
+        await sendPasswordResetEmail(auth, email.trim());
+        showAlert(
+          "Password Reset Email Sent",
+          "Check your email for instructions to reset your password.",
+          "success"
         );
         setEmail(""); // Clear the form
-      } catch (error: any) {
-        Alert.alert(
-          "Error",
-          error.message || "Failed to send password reset email"
-        );
+      } catch (error) {
+        console.error("Password reset error:", error);
+
+        if (error instanceof FirebaseError) {
+          const errorMessage = getFirebaseErrorMessage(error);
+          showAlert("Password Reset Failed", errorMessage, "error");
+        } else {
+          showAlert(
+            "Password Reset Failed",
+            "An unexpected error occurred. Please try again later.",
+            "error"
+          );
+        }
       }
     }
   };
@@ -100,6 +191,16 @@ const PasswordReset: React.FC = () => {
           password.
         </Text>
       </View>
+
+      {/* Custom Alert Message */}
+      <AlertMessage
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+        onClose={() => setAlertVisible(false)}
+      />
     </ScrollView>
   );
 };

@@ -6,13 +6,8 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert,
-  Platform,
-  Modal,
-  FlatList,
 } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
-import { lightTheme } from "../../theme"; // Always use light theme
+import { lightTheme } from "../../theme";
 import { globalStyles, CARD_WIDTH } from "../../styles/styles";
 import {
   createUserWithEmailAndPassword,
@@ -22,25 +17,49 @@ import {
 import { doc, setDoc } from "firebase/firestore";
 import { auth, db } from "../../firebase";
 import NetInfo from "@react-native-community/netinfo";
-import Icon from "react-native-vector-icons/Ionicons";
+import { FirebaseError } from "firebase/app";
+import AlertMessage from "../ui/AlertMessage";
+import DatePicker from "../ui/DatePicker";
+import CityPicker from "../ui/CityPicker";
 
 interface SignupFormProps {
   onSwitchToLogin?: () => void;
 }
 
+// Cities list for Nepal
 const cities = ["Kathmandu", "Pokhara", "Bharatpur", "Nepalgunj", "Birgunj"];
 
 const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
+  // Form fields state
   const [name, setName] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState<Date | null>(null);
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
   const [selectedCity, setSelectedCity] = useState("");
+
+  // UI state
+  const [showPassword, setShowPassword] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCityDropdown, setShowCityDropdown] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Alert state
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: "",
+    message: "",
+    type: "info" as "success" | "error" | "warning" | "info",
+    buttons: [
+      {
+        text: "OK",
+        onPress: () => {},
+        style: "default" as "default" | "cancel" | "destructive",
+      },
+    ],
+  });
+
+  // Form validation state
   const [errors, setErrors] = useState({
     name: "",
     dateOfBirth: "",
@@ -50,12 +69,34 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
     city: "",
   });
 
-  const validateEmail = (email: string) => {
+  /**
+   * Shows a custom alert dialog
+   */
+  const showAlert = (
+    title: string,
+    message: string,
+    type: "success" | "error" | "warning" | "info" = "info",
+    buttons = [
+      {
+        text: "OK",
+        onPress: () => {},
+        style: "default" as "default" | "cancel" | "destructive",
+      },
+    ]
+  ) => {
+    setAlertConfig({ title, message, type, buttons });
+    setAlertVisible(true);
+  };
+
+  /**
+   * Form validation utilities
+   */
+  const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  const validateAge = (birthDate: Date) => {
+  const validateAge = (birthDate: Date): boolean => {
     const today = new Date();
     const age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
@@ -69,7 +110,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
     return age >= 13;
   };
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const newErrors = {
       name: "",
       dateOfBirth: "",
@@ -80,11 +121,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
     };
     let isValid = true;
 
+    // Validate name
     if (!name.trim()) {
       newErrors.name = "Name is required";
       isValid = false;
     }
 
+    // Validate date of birth
     if (!dateOfBirth) {
       newErrors.dateOfBirth = "Date of birth is required";
       isValid = false;
@@ -93,11 +136,13 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
       isValid = false;
     }
 
+    // Validate city
     if (!selectedCity) {
       newErrors.city = "City is required";
       isValid = false;
     }
 
+    // Validate email
     if (!email.trim()) {
       newErrors.email = "Email is required";
       isValid = false;
@@ -106,6 +151,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
       isValid = false;
     }
 
+    // Validate password
     if (!password) {
       newErrors.password = "Password is required";
       isValid = false;
@@ -114,6 +160,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
       isValid = false;
     }
 
+    // Validate password confirmation
     if (password !== confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
       isValid = false;
@@ -123,7 +170,9 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
     return isValid;
   };
 
-  // Function to save user data to Firestore
+  /**
+   * Database and auth helpers
+   */
   const saveUserToDatabase = async (user: any) => {
     try {
       const userData = {
@@ -146,10 +195,8 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
         isActive: true,
       };
 
-      // Save to Firestore using the user's UID as document ID
       await setDoc(doc(db, "users", user.uid), userData);
       console.log("User data saved to Firestore successfully");
-
       return userData;
     } catch (error) {
       console.error("Error saving user data to Firestore:", error);
@@ -157,10 +204,11 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
     }
   };
 
+  /**
+   * UI event handlers
+   */
   const handleDateChange = (event: any, selectedDate?: Date) => {
-    if (Platform.OS === "android") {
-      setShowDatePicker(false);
-    }
+    setShowDatePicker(false);
 
     if (selectedDate) {
       setDateOfBirth(selectedDate);
@@ -168,14 +216,6 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
         setErrors({ ...errors, dateOfBirth: "" });
       }
     }
-  };
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
   };
 
   const handleCitySelect = (city: string) => {
@@ -186,12 +226,17 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
     }
   };
 
+  /**
+   * Main form submission handler
+   */
   const handleSignup = async () => {
+    // Check network connectivity
     const netState = await NetInfo.fetch();
     if (!netState.isConnected) {
-      Alert.alert(
+      showAlert(
         "Connection Error",
-        "No internet connection. Please check your connection and try again."
+        "No internet connection. Please check your connection and try again.",
+        "error"
       );
       return;
     }
@@ -204,12 +249,12 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
       // Create user with Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(
         auth,
-        email,
+        email.trim(),
         password
       );
 
       // Update user profile
-      await updateProfile(userCredential.user, { displayName: name });
+      await updateProfile(userCredential.user, { displayName: name.trim() });
 
       // Save user data to Firestore
       await saveUserToDatabase(userCredential.user);
@@ -217,10 +262,20 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
       // Send email verification
       await sendEmailVerification(userCredential.user);
 
-      Alert.alert(
+      // Show success message
+      showAlert(
         "Account Created Successfully!",
         "Your account has been created and your information has been saved. Please check your email to verify your account before logging in.",
-        [{ text: "OK", onPress: onSwitchToLogin }]
+        "success",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              if (onSwitchToLogin) onSwitchToLogin();
+            },
+            style: "default",
+          },
+        ]
       );
 
       // Clear form
@@ -230,31 +285,58 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
       setConfirmPassword("");
       setDateOfBirth(null);
       setSelectedCity("");
-    } catch (error: any) {
-      console.log("Signup error:", error);
-      let message = "Something went wrong while creating your account.";
+    } catch (error) {
+      console.error("Signup error:", error);
 
-      if (error.code === "auth/email-already-in-use") {
-        message =
-          "This email is already registered. Please use a different email or login.";
-      } else if (error.code === "auth/invalid-email") {
-        message = "Please enter a valid email address.";
-      } else if (error.code === "auth/weak-password") {
-        message = "Password must be at least 6 characters long.";
-      } else if (error.code === "auth/network-request-failed") {
-        message =
-          "Network error. Please check your internet connection and try again.";
-      } else if (error.message?.includes("Firestore")) {
-        message =
-          "Account created but there was an issue saving your profile. Please contact support.";
+      if (error instanceof FirebaseError) {
+        const errorMessage = getFirebaseErrorMessage(error);
+
+        // Handle specific error cases for the UI
+        if (error.code === "auth/email-already-in-use") {
+          setErrors({ ...errors, email: "This email is already registered" });
+        } else if (error.code === "auth/weak-password") {
+          setErrors({ ...errors, password: "Password is too weak" });
+        } else if (error.code === "auth/invalid-email") {
+          setErrors({ ...errors, email: "Invalid email format" });
+        } else {
+          showAlert("Signup Failed", errorMessage, "error");
+        }
+      } else {
+        showAlert(
+          "Signup Failed",
+          "An unexpected error occurred. Please try again later.",
+          "error"
+        );
       }
-
-      Alert.alert("Signup Failed", message);
     } finally {
       setIsLoading(false);
     }
   };
 
+  /**
+   * Get a user-friendly error message for Firebase authentication errors
+   */
+  const getFirebaseErrorMessage = (error: FirebaseError): string => {
+    switch (error.code) {
+      case "auth/email-already-in-use":
+        return "This email is already registered. Please use a different email or login.";
+      case "auth/invalid-email":
+        return "The email address is not valid.";
+      case "auth/operation-not-allowed":
+        return "Email/password accounts are not enabled. Please contact support.";
+      case "auth/weak-password":
+        return "The password is too weak. Please use a stronger password with at least 6 characters.";
+      case "auth/network-request-failed":
+        return "Network error. Please check your connection and try again.";
+      case "auth/too-many-requests":
+        return "Too many requests. Please try again later.";
+      case "auth/internal-error":
+        return "An internal error occurred. Please try again later.";
+      default:
+        // Don't show error code or message
+        return "Something went wrong. Please try again later.";
+    }
+  };
   return (
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
@@ -265,6 +347,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
         <Text style={styles.formTitle}>Sign Up</Text>
         <View style={styles.separator} />
 
+        {/* Full Name Input */}
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Full Name</Text>
           <TextInput
@@ -287,81 +370,40 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           ) : null}
         </View>
 
+        {/* Date of Birth Input */}
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Date of Birth</Text>
-          <TouchableOpacity
-            style={[
-              styles.datePickerButton,
-              errors.dateOfBirth ? styles.inputError : null,
-              isLoading ? styles.disabledInput : null,
-            ]}
-            onPress={() => !isLoading && setShowDatePicker(true)}
-            disabled={isLoading}
-          >
-            <Text
-              style={[
-                styles.datePickerText,
-                !dateOfBirth && styles.placeholderText,
-              ]}
-            >
-              {dateOfBirth
-                ? formatDate(dateOfBirth)
-                : "Select your date of birth"}
-            </Text>
-          </TouchableOpacity>
-          {errors.dateOfBirth ? (
-            <Text style={styles.errorText}>{errors.dateOfBirth}</Text>
-          ) : null}
-
-          {showDatePicker && (
-            <DateTimePicker
-              value={dateOfBirth || new Date(2000, 0, 1)}
-              mode="date"
-              display={Platform.OS === "ios" ? "spinner" : "default"}
-              onChange={handleDateChange}
-              maximumDate={new Date()}
-              minimumDate={new Date(1950, 0, 1)}
-            />
-          )}
-
-          {Platform.OS === "ios" && showDatePicker && (
-            <View style={styles.iosDatePickerActions}>
-              <TouchableOpacity
-                style={styles.datePickerAction}
-                onPress={() => setShowDatePicker(false)}
-              >
-                <Text style={styles.datePickerActionText}>Done</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          <DatePicker
+            value={dateOfBirth}
+            label=""
+            showPicker={showDatePicker}
+            onTogglePicker={() => setShowDatePicker(!showDatePicker)}
+            onDateChange={handleDateChange}
+            error={errors.dateOfBirth}
+            placeholder="Select your date of birth"
+            maximumDate={new Date()}
+            minimumDate={new Date(1950, 0, 1)}
+          />
         </View>
 
+        {/* City Input */}
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>City</Text>
-          <TouchableOpacity
-            style={[
-              styles.dropdownButton,
-              errors.city ? styles.inputError : null,
-              isLoading ? styles.disabledInput : null,
-            ]}
-            onPress={() => !isLoading && setShowCityDropdown(true)}
-            disabled={isLoading}
-          >
-            <Text
-              style={[
-                styles.dropdownText,
-                !selectedCity && styles.placeholderText,
-              ]}
-            >
-              {selectedCity || "Select your city"}
-            </Text>
-            <Text style={styles.dropdownArrow}>▼</Text>
-          </TouchableOpacity>
-          {errors.city ? (
-            <Text style={styles.errorText}>{errors.city}</Text>
-          ) : null}
+          <CityPicker
+            label=""
+            selectedCity={selectedCity}
+            showModal={showCityDropdown}
+            cities={cities}
+            onToggleModal={() =>
+              !isLoading && setShowCityDropdown(!showCityDropdown)
+            }
+            onSelectCity={handleCitySelect}
+            error={errors.city}
+            placeholder="Select your city"
+          />
         </View>
 
+        {/* Email Input */}
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Email</Text>
           <TextInput
@@ -385,6 +427,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           ) : null}
         </View>
 
+        {/* Password Input */}
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Password</Text>
           <View style={styles.passwordInputWrapper}>
@@ -423,6 +466,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           ) : null}
         </View>
 
+        {/* Confirm Password Input */}
         <View style={styles.inputContainer}>
           <Text style={styles.inputLabel}>Confirm Password</Text>
           <TextInput
@@ -446,6 +490,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           ) : null}
         </View>
 
+        {/* Signup Button */}
         <TouchableOpacity
           style={[globalStyles.button, isLoading && styles.disabledButton]}
           onPress={handleSignup}
@@ -456,6 +501,7 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
           </Text>
         </TouchableOpacity>
 
+        {/* Login Prompt */}
         <View style={styles.loginPrompt}>
           <Text style={styles.loginPromptText}>Already have an account?</Text>
           <TouchableOpacity onPress={onSwitchToLogin} disabled={isLoading}>
@@ -470,104 +516,15 @@ const SignupForm: React.FC<SignupFormProps> = ({ onSwitchToLogin }) => {
         </Text>
       </View>
 
-      {/* City Dropdown Modal */}
-      <Modal
-        visible={showCityDropdown}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowCityDropdown(false)}
-        statusBarTranslucent={true}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modernModalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modernModalTitle}>Select City</Text>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setShowCityDropdown(false)}
-                activeOpacity={0.7}
-              >
-                <Icon
-                  name="close"
-                  size={20}
-                  color={lightTheme.colors.subText}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.optionsContainer}>
-              {cities.map((city, index) => (
-                <TouchableOpacity
-                  key={city}
-                  style={[
-                    styles.modernModalOption,
-                    {
-                      backgroundColor:
-                        selectedCity === city
-                          ? lightTheme.colors.primary + "10"
-                          : "transparent",
-                      borderColor:
-                        selectedCity === city
-                          ? lightTheme.colors.primary
-                          : "rgba(0, 56, 147, 0.3)",
-                    },
-                  ]}
-                  onPress={() => handleCitySelect(city)}
-                  activeOpacity={0.8}
-                >
-                  <View
-                    style={[
-                      styles.iconContainer,
-                      {
-                        backgroundColor:
-                          selectedCity === city
-                            ? lightTheme.colors.primary
-                            : "#f5f5f5",
-                      },
-                    ]}
-                  >
-                    <Icon
-                      name="location"
-                      size={22}
-                      color={
-                        selectedCity === city
-                          ? "#FFFFFF"
-                          : lightTheme.colors.primary
-                      }
-                    />
-                  </View>
-                  <View style={styles.optionTextContainer}>
-                    <Text
-                      style={[
-                        styles.modernModalOptionText,
-                        {
-                          color:
-                            selectedCity === city
-                              ? lightTheme.colors.primary
-                              : lightTheme.colors.text,
-                          fontWeight: selectedCity === city ? "600" : "500",
-                        },
-                      ]}
-                    >
-                      {city}
-                    </Text>
-                    <Text style={styles.citySubtext}>City in Nepal</Text>
-                  </View>
-                  {selectedCity === city && (
-                    <View style={styles.checkmarkContainer}>
-                      <Icon
-                        name="checkmark-circle"
-                        size={24}
-                        color={lightTheme.colors.primary}
-                      />
-                    </View>
-                  )}
-                </TouchableOpacity>
-              ))}
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {/* Custom Alert Message */}
+      <AlertMessage
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+        onClose={() => setAlertVisible(false)}
+      />
     </ScrollView>
   );
 };
@@ -603,188 +560,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "600",
     marginBottom: 8,
-    color: lightTheme.colors.text,
-  },
-  datePickerButton: {
-    borderWidth: 1,
-    borderColor: "rgba(0, 56, 147, 0.3)",
-    borderRadius: lightTheme.borderRadius.small,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#fff",
-    minHeight: 48,
-    justifyContent: "center",
-  },
-  datePickerText: {
-    fontSize: 16,
-    color: lightTheme.colors.text,
-  },
-  placeholderText: {
-    color: lightTheme.colors.subText,
-  },
-  iosDatePickerActions: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    paddingVertical: 8,
-  },
-  datePickerAction: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  datePickerActionText: {
-    color: lightTheme.colors.primary,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  // City Dropdown Styles
-  dropdownButton: {
-    borderWidth: 1,
-    borderColor: "rgba(0, 56, 147, 0.3)",
-    borderRadius: lightTheme.borderRadius.small,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: "#fff",
-    minHeight: 48,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-  dropdownText: {
-    fontSize: 16,
-    color: lightTheme.colors.text,
-    flex: 1,
-  },
-  dropdownArrow: {
-    fontSize: 12,
-    color: lightTheme.colors.subText,
-  },
-  // Modern City Dropdown Styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.6)",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  modernModalContent: {
-    width: "100%",
-    maxWidth: 400,
-    borderRadius: 20,
-    padding: 0,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.25,
-    shadowRadius: 20,
-    elevation: 10,
-    backgroundColor: "white",
-  },
-  modalHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 56, 147, 0.1)",
-  },
-  modernModalTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    flex: 1,
-    color: lightTheme.colors.primary,
-  },
-  closeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#f5f5f5",
-  },
-  optionsContainer: {
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-    paddingTop: 8,
-  },
-  modernModalOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-    borderRadius: 16,
-    borderWidth: 2,
-    backgroundColor: "transparent",
-    marginBottom: 12,
-  },
-  iconContainer: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 16,
-  },
-  optionTextContainer: {
-    flex: 1,
-    justifyContent: "center",
-  },
-  modernModalOptionText: {
-    fontSize: 17,
-    lineHeight: 22,
-    color: lightTheme.colors.text,
-    fontWeight: "500",
-  },
-  citySubtext: {
-    fontSize: 14,
-    marginTop: 2,
-    opacity: 0.7,
-    color: lightTheme.colors.subText,
-  },
-  checkmarkContainer: {
-    marginLeft: 12,
-  },
-  // Old City Dropdown Styles (can be removed after testing)
-  dropdownModal: {
-    backgroundColor: "white",
-    borderRadius: lightTheme.borderRadius.medium,
-    width: "80%",
-    maxHeight: "60%",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  dropdownHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 56, 147, 0.2)",
-  },
-  dropdownTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: lightTheme.colors.primary,
-  },
-  buttonClose: {
-    fontSize: 18,
-    color: lightTheme.colors.subText,
-    fontWeight: "600",
-  },
-  dropdownList: {
-    maxHeight: 250,
-  },
-  dropdownItem: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 56, 147, 0.1)",
-  },
-  dropdownItemText: {
-    fontSize: 16,
     color: lightTheme.colors.text,
   },
   passwordInputWrapper: {

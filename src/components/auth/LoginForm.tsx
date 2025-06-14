@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
-  Alert,
   Modal,
 } from "react-native";
 import { lightTheme } from "../../theme"; // Always use light theme
@@ -18,6 +17,8 @@ import {
 } from "firebase/auth";
 import PasswordReset from "./PasswordReset";
 import NetInfo from "@react-native-community/netinfo";
+import { FirebaseError } from "firebase/app";
+import AlertMessage from "../ui/AlertMessage";
 
 interface LoginFormProps {
   onSubmit: Function;
@@ -28,11 +29,40 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordReset, setShowPasswordReset] = useState(false);
+  const [alertVisible, setAlertVisible] = useState(false);
+  const [alertConfig, setAlertConfig] = useState({
+    title: "",
+    message: "",
+    type: "info" as "success" | "error" | "warning" | "info",
+    buttons: [
+      {
+        text: "OK",
+        onPress: () => {},
+        style: "default" as "default" | "cancel" | "destructive",
+      },
+    ],
+  });
 
   const [errors, setErrors] = useState({
     email: "",
     password: "",
   });
+
+  const showAlert = (
+    title: string,
+    message: string,
+    type: "success" | "error" | "warning" | "info" = "info",
+    buttons = [
+      {
+        text: "OK",
+        onPress: () => {},
+        style: "default" as "default" | "cancel" | "destructive",
+      },
+    ]
+  ) => {
+    setAlertConfig({ title, message, type, buttons });
+    setAlertVisible(true);
+  };
 
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -63,12 +93,37 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
     return isValid;
   };
 
+  const getFirebaseErrorMessage = (error: FirebaseError): string => {
+    switch (error.code) {
+      case "auth/invalid-email":
+        return "The email address is not valid.";
+      case "auth/user-disabled":
+        return "This account has been disabled. Please contact support.";
+      case "auth/user-not-found":
+        return "No account found with this email. Please check your email or sign up.";
+      case "auth/wrong-password":
+        return "Incorrect password. Please try again or reset your password.";
+      case "auth/too-many-requests":
+        return "Too many failed login attempts. Please try again later or reset your password.";
+      case "auth/network-request-failed":
+        return "Network error. Please check your connection and try again.";
+      case "auth/invalid-login-credentials":
+        return "Invalid login credentials. Please check your email and password.";
+      case "auth/internal-error":
+        return "An internal error occurred. Please try again later.";
+      default:
+        // Don't show error code or message
+        return "Something went wrong. Please try again later.";
+    }
+  };
+
   const handleLogin = async () => {
     const netState = await NetInfo.fetch();
     if (!netState.isConnected) {
-      Alert.alert(
+      showAlert(
         "Connection Error",
-        "No internet connection. Please check your connection and try again."
+        "No internet connection. Please check your connection and try again.",
+        "error"
       );
       return;
     }
@@ -77,27 +132,70 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
       try {
         const userCredential = await signInWithEmailAndPassword(
           auth,
-          email,
+          email.trim(),
           password
         );
         console.log("Login successful:", userCredential.user);
         if (!userCredential.user.emailVerified) {
           await auth.signOut();
-          sendEmailVerification(userCredential.user);
-          Alert.alert(
-            "Email Verification",
-            "Please verify your email before logging in."
-          );
+          try {
+            await sendEmailVerification(userCredential.user);
+            showAlert(
+              "Email Verification Required",
+              "A verification email has been sent. Please verify your email before logging in.",
+              "warning"
+            );
+          } catch (verificationError) {
+            console.error(
+              "Error sending verification email:",
+              verificationError
+            );
+            showAlert(
+              "Verification Required",
+              "Your email is not verified. Please check your inbox for a verification email or request a new one.",
+              "warning"
+            );
+          }
           return;
         }
-        
+
         onSubmit();
       } catch (error) {
-        console.log("Login error:", error);
-        Alert.alert(
-          "Login Failed",
-          "Please check your credentials and try again."
-        );
+        console.error("Login error:", error);
+
+        if (error instanceof FirebaseError) {
+          const errorMessage = getFirebaseErrorMessage(error);
+
+          // Handle specific error cases for the UI
+          if (
+            error.code === "auth/user-not-found" ||
+            error.code === "auth/wrong-password"
+          ) {
+            setErrors({
+              email: "",
+              password: "Invalid email or password",
+            });
+          } else if (error.code === "auth/invalid-email") {
+            setErrors({
+              ...errors,
+              email: "Invalid email format",
+            });
+          } else if (error.code === "auth/too-many-requests") {
+            showAlert(
+              "Too Many Attempts",
+              "Too many failed login attempts. Please try again later or reset your password.",
+              "error"
+            );
+          } else {
+            showAlert("Login Failed", errorMessage, "error");
+          }
+        } else {
+          showAlert(
+            "Login Failed",
+            "An unexpected error occurred. Please try again later.",
+            "error"
+          );
+        }
       }
     }
   };
@@ -201,6 +299,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           <PasswordReset />
         </View>
       </Modal>
+
+      {/* Custom Alert Message */}
+      <AlertMessage
+        visible={alertVisible}
+        title={alertConfig.title}
+        message={alertConfig.message}
+        type={alertConfig.type}
+        buttons={alertConfig.buttons}
+        onClose={() => setAlertVisible(false)}
+      />
     </>
   );
 };

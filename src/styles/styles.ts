@@ -52,6 +52,7 @@ export const globalStyles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 16,
     fontWeight: "bold",
+    paddingHorizontal: 16,
   },
   headerContainer: {
     width: "100%",

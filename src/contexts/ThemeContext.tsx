@@ -1,14 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { lightTheme, /* darkTheme, */ Theme } from "../theme";
+import { lightTheme, Theme } from "../theme";
 
 interface ThemeContextType {
-  isDark: boolean; // Keeping for compatibility
+  isDark: boolean;
   colors: Theme["colors"];
   theme: Theme;
-  themeMode: "light" | "dark" | "auto"; // Keeping for compatibility
-  setTheme: (theme: "light" | "dark" | "auto") => void; // Keeping for compatibility
-  toggleTheme: () => void; // Keeping for compatibility
+  themeMode: "light";
+  setTheme: (theme: "light") => void;
+  toggleTheme: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -18,9 +18,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   // Force light mode by always setting isDark to false
   const [isDark, setIsDark] = useState(false);
-  const [themeMode, setThemeMode] = useState<"light" | "dark" | "auto">(
-    "light"
-  );
+  const [themeMode, setThemeMode] = useState<"light">("light");
 
   useEffect(() => {
     // Always use light theme regardless of saved preference

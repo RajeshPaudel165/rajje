@@ -1,5 +1,5 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useTheme } from "../../contexts/ThemeContext";
 
@@ -9,7 +9,6 @@ interface ThemeBackgroundProps {
 
 const ThemeBackground: React.FC<ThemeBackgroundProps> = ({ children }) => {
   const { colors } = useTheme();
-  // isDark is removed since we're always using light mode
 
   return (
     <LinearGradient

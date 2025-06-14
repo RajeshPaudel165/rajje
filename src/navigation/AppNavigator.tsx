@@ -4,6 +4,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { User } from "firebase/auth";
 import AuthScreen from "../screens/AuthScreen";
 import DashboardScreen from "../screens/DashboardScreen";
+import HistoryScreen from "../screens/HistoryScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import SettingsScreen from "../screens/SettingsScreen";
 import { useTheme } from "../contexts/ThemeContext";
@@ -77,7 +78,7 @@ const MainTabNavigator = () => {
       />
       <Tab.Screen
         name="History"
-        component={DashboardScreen}
+        component={HistoryScreen}
         options={{
           tabBarLabel: t("history"),
         }}
