@@ -4,9 +4,9 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "start": "expo start",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
+    "start": "node scripts/load-env.js && expo start",
+    "android": "node scripts/load-env.js && expo run:android",
+    "ios": "node scripts/load-env.js && expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -33,6 +33,7 @@
     "react-native": "0.79.3",
     "react-native-dotenv": "^3.4.11",
     "react-native-geolocation-service": "^5.3.1",
+    "react-native-maps": "^1.7.1",
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "^5.4.0",
     "react-native-screens": "^4.11.1",

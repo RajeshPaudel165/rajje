@@ -1,235 +1,276 @@
-import React from "react";
-import { View, Text, StyleSheet, Dimensions } from "react-native";
-import { theme } from "../theme";
-import VehicleIcon from "../components/common/VehicleIcon";
-import ThemeBackground from "../components/common/ThemeBackground";
+import React, { useRef, useState } from "react";
+import { View, TouchableOpacity, StyleSheet } from "react-native";
+import MapView, { PROVIDER_GOOGLE, MAP_TYPES } from 'react-native-maps';
 import { useCurrentLocation } from "../hooks/location";
-import { useTheme } from "../contexts/ThemeContext";
-import { useLanguage } from "../contexts/LanguageContext";
-
-const { width, height } = Dimensions.get("window");
+import Icon from "react-native-vector-icons/Ionicons";
 
 const DashboardScreen: React.FC = () => {
-  const { location, errorMsg } = useCurrentLocation();
-  const { colors } = useTheme();
-  const { t } = useLanguage();
+  const { location } = useCurrentLocation();
+  const mapRef = useRef<MapView>(null);
+  const [isFollowingUser, setIsFollowingUser] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  if (!location) return null;
+
+  const initialRegion = {
+    latitude: location.coords.latitude,
+    longitude: location.coords.longitude,
+    latitudeDelta: 0.01,
+    longitudeDelta: 0.01,
+  };
+
+  const handleCenterOnUser = () => {
+    if (mapRef.current && location) {
+      mapRef.current.animateToRegion({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+      setIsFollowingUser(true);
+    }
+  };
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
 
   return (
-    <ThemeBackground>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <View style={styles.logoContainer}>
-            <VehicleIcon
-              width={theme.logoDashboard.width}
-              height={theme.logoDashboard.height}
-              color={colors.primary}
-            />
-          </View>
-        </View>
+    <View style={styles.container}>
+      <MapView
+        ref={mapRef}
+        provider={PROVIDER_GOOGLE}
+        style={styles.map}
+        initialRegion={initialRegion}
+        showsUserLocation={true}
+        showsMyLocationButton={false}
+        onRegionChangeComplete={() => setIsFollowingUser(false)}
+        mapType={isDarkMode ? MAP_TYPES.STANDARD : MAP_TYPES.STANDARD}
+        customMapStyle={isDarkMode ? darkMapStyle : []}
+      />
+      
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity 
+          style={[styles.button, styles.darkModeButton]}
+          onPress={toggleDarkMode}
+        >
+          <Icon 
+            name={isDarkMode ? "sunny" : "moon"} 
+            size={24} 
+            color={isDarkMode ? "#FFD700" : "#666"} 
+          />
+        </TouchableOpacity>
 
-        <View style={styles.coordinatesContainer}>
-          {location ? (
-            <View
-              style={[
-                styles.coordinatesCard,
-                { backgroundColor: "rgba(255, 255, 255, 0.9)" },
-              ]}
-            >
-              <Text
-                style={[styles.coordinatesTitle, { color: colors.primary }]}
-              >
-                {t("currentLocation")}
-              </Text>
-              <View style={styles.coordinateRow}>
-                <Text style={[styles.coordinateLabel, { color: colors.text }]}>
-                  {t("latitude")}:
-                </Text>
-                <Text
-                  style={[
-                    styles.coordinateValue,
-                    { color: colors.textSecondary },
-                  ]}
-                >
-                  {location.coords.latitude.toFixed(6)}
-                </Text>
-              </View>
-              <View style={styles.coordinateRow}>
-                <Text style={[styles.coordinateLabel, { color: colors.text }]}>
-                  {t("longitude")}:
-                </Text>
-                <Text
-                  style={[
-                    styles.coordinateValue,
-                    { color: colors.textSecondary },
-                  ]}
-                >
-                  {location.coords.longitude.toFixed(6)}
-                </Text>
-              </View>
-              <View style={styles.coordinateRow}>
-                <Text style={[styles.coordinateLabel, { color: colors.text }]}>
-                  {t("accuracy")}:
-                </Text>
-                <Text
-                  style={[
-                    styles.coordinateValue,
-                    { color: colors.textSecondary },
-                  ]}
-                >
-                  ±{location.coords.accuracy?.toFixed(1)}m
-                </Text>
-              </View>
-              {location.coords.altitude && (
-                <View style={styles.coordinateRow}>
-                  <Text
-                    style={[styles.coordinateLabel, { color: colors.text }]}
-                  >
-                    {t("altitude")}:
-                  </Text>
-                  <Text
-                    style={[
-                      styles.coordinateValue,
-                      { color: colors.textSecondary },
-                    ]}
-                  >
-                    {location.coords.altitude.toFixed(1)}m
-                  </Text>
-                </View>
-              )}
-            </View>
-          ) : errorMsg ? (
-            <View
-              style={[
-                styles.errorCard,
-                { backgroundColor: "rgba(255, 255, 255, 0.9)" },
-              ]}
-            >
-              <Text style={[styles.errorText, { color: colors.error }]}>
-                {errorMsg}
-              </Text>
-            </View>
-          ) : (
-            <View
-              style={[
-                styles.loadingCard,
-                { backgroundColor: "rgba(255, 255, 255, 0.9)" },
-              ]}
-            >
-              <Text style={[styles.loadingText, { color: colors.text }]}>
-                {t("fetchingLocation")}
-              </Text>
-            </View>
-          )}
-        </View>
+        <TouchableOpacity 
+          style={[styles.button, styles.centerButton]}
+          onPress={handleCenterOnUser}
+        >
+          <Icon 
+            name="locate" 
+            size={24} 
+            color={isFollowingUser ? "#007AFF" : "#666"} 
+          />
+        </TouchableOpacity>
       </View>
-    </ThemeBackground>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "transparent",
-    position: "relative",
   },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "flex-start",
-    paddingVertical: 6,
-    elevation: 4,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    paddingTop: 22,
-  },
-  logoContainer: {
-    transform: [{ scale: 1.05 }],
-    marginLeft: 2,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginTop: 20,
-    color: "#003893",
-  },
-  coordinatesContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    marginTop: 16,
-    paddingHorizontal: 16,
-  },
-  coordinatesCard: {
-    width: "100%",
-    maxWidth: 350,
-    borderRadius: 16,
-    padding: 24,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  coordinatesTitle: {
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  coordinateRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(0, 0, 0, 0.05)",
-  },
-  coordinateLabel: {
-    fontSize: 16,
-    fontWeight: "600",
+  map: {
     flex: 1,
   },
-  coordinateValue: {
-    fontSize: 16,
-    fontFamily: "monospace",
-    textAlign: "right",
+  buttonContainer: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    gap: 10,
   },
-  errorCard: {
-    width: "100%",
-    maxWidth: 350,
-    borderRadius: 16,
-    padding: 24,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+  button: {
+    backgroundColor: 'white',
+    padding: 12,
+    borderRadius: 30,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
-  errorText: {
-    fontSize: 16,
-    textAlign: "center",
+  centerButton: {
+    marginTop: 10,
   },
-  loadingCard: {
-    width: "100%",
-    maxWidth: 350,
-    borderRadius: 16,
-    padding: 24,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  loadingText: {
-    fontSize: 18,
-    fontWeight: "bold",
-    textAlign: "center",
+  darkModeButton: {
+    backgroundColor: 'white',
   },
 });
+
+// Dark mode map style
+const darkMapStyle = [
+  {
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#242f3e"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#746855"
+      }
+    ]
+  },
+  {
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#242f3e"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.locality",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#d59563"
+      }
+    ]
+  },
+  {
+    "featureType": "poi",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#d59563"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#263c3f"
+      }
+    ]
+  },
+  {
+    "featureType": "poi.park",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#6b9a76"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#38414e"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#212a37"
+      }
+    ]
+  },
+  {
+    "featureType": "road",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#9ca5b3"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#746855"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#1f2835"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#f3d19c"
+      }
+    ]
+  },
+  {
+    "featureType": "transit",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#2f3948"
+      }
+    ]
+  },
+  {
+    "featureType": "transit.station",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#d59563"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "geometry",
+    "stylers": [
+      {
+        "color": "#17263c"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "labels.text.fill",
+    "stylers": [
+      {
+        "color": "#515c6d"
+      }
+    ]
+  },
+  {
+    "featureType": "water",
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#17263c"
+      }
+    ]
+  }
+];
 
 export default DashboardScreen;

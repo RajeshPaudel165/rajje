@@ -15,6 +15,7 @@ prepare_react_native_project!
 
 target 'myapp' do
   use_expo_modules!
+  pod 'GoogleMaps'
 
   if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
     config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"];
@@ -57,6 +58,15 @@ target 'myapp' do
       target_installation_result.resource_bundle_targets.each do |resource_bundle_target|
         resource_bundle_target.build_configurations.each do |config|
           config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+        end
+      end
+    end
+
+    # Fix for Ionicons.ttf conflict
+    installer.pods_project.targets.each do |target|
+      if target.name == 'RNVectorIcons'
+        target.build_configurations.each do |config|
+          config.build_settings['SKIP_INSTALL'] = 'NO'
         end
       end
     end
