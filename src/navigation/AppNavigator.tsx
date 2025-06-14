@@ -7,6 +7,7 @@ import DashboardScreen from "../screens/DashboardScreen";
 import HistoryScreen from "../screens/HistoryScreen";
 import ProfileScreen from "../screens/ProfileScreen";
 import SettingsScreen from "../screens/SettingsScreen";
+import FAQsScreen from "../screens/FAQsScreen";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLanguage } from "../contexts/LanguageContext";
 
@@ -18,6 +19,7 @@ interface AppNavigatorProps {
 type RootStackParamList = {
   Auth: undefined;
   MainApp: undefined;
+  FAQs: undefined;
 };
 
 type MainTabParamList = {
@@ -102,7 +104,6 @@ const MainTabNavigator = () => {
 };
 
 // Root stack navigator
-// Root stack navigator
 const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
   // Determine which screen to show first based on authentication status
   const initialRouteName = user ? "MainApp" : "Auth";
@@ -116,6 +117,15 @@ const AppNavigator: React.FC<AppNavigatorProps> = ({ user }) => {
     >
       <Stack.Screen name="Auth" component={AuthScreen} />
       <Stack.Screen name="MainApp" component={MainTabNavigator} />
+      <Stack.Screen
+        name="FAQs"
+        component={FAQsScreen}
+        options={{
+          headerShown: true,
+          headerTitle: "",
+          headerBackTitle: " ",
+        }}
+      />
     </Stack.Navigator>
   );
 };

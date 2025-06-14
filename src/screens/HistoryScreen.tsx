@@ -18,7 +18,7 @@ const HistoryScreen: React.FC = () => {
             {t("history")}
           </Text>
           <Text style={[styles.subtitle, { color: colors.text }]}>
-            Your trip history will appear here
+            {t("Your trip history will appear here")}
           </Text>
         </View>
       </View>

@@ -169,23 +169,20 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSubmit }) => {
           // Handle specific error cases for the UI
           if (
             error.code === "auth/user-not-found" ||
-            error.code === "auth/wrong-password"
+            error.code === "auth/wrong-password" ||
+            error.code === "auth/invalid-login-credentials"
           ) {
             setErrors({
               email: "",
-              password: "Invalid email or password",
+              password: errorMessage,
             });
           } else if (error.code === "auth/invalid-email") {
             setErrors({
               ...errors,
-              email: "Invalid email format",
+              email: errorMessage,
             });
           } else if (error.code === "auth/too-many-requests") {
-            showAlert(
-              "Too Many Attempts",
-              "Too many failed login attempts. Please try again later or reset your password.",
-              "error"
-            );
+            showAlert("Too Many Attempts", errorMessage, "error");
           } else {
             showAlert("Login Failed", errorMessage, "error");
           }

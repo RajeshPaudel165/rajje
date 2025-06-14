@@ -66,6 +66,24 @@ const translations: Translations = {
       "Unable to connect to the database. Please check your internet connection.",
     errorLoadingProfile: "Failed to load profile data",
     selectCity: "Select City",
+    faqs: "FAQs",
+    contactUs: "Contact Us",
+    help: "Help & Support",
+    comingSoon: "Coming Soon!",
+    phone: "Phone",
+    faq1Question: "How do I change my city?",
+    faq1Answer:
+      "You can change your city by going to Profile > Edit > City and selecting a new city from the dropdown list.",
+    faq2Question: "How do I change my date of birth?",
+    faq2Answer:
+      "To change your date of birth, go to Profile > Edit > Date of Birth and select your new date from the calendar picker.",
+    faq3Question: "How do I change my name?",
+    faq3Answer:
+      "You can update your name by navigating to Profile > Edit > Name and entering your new name in the text field.",
+    faq4Question: "How do I turn off notifications?",
+    faq4Answer:
+      "To turn off notifications, go to Settings > Notifications and toggle the switch to off position.",
+    more: "More",
   },
   ne: {
     dashboard: "ड्यासबोर्ड",
@@ -125,6 +143,25 @@ const translations: Translations = {
       "डाटाबेससँग जडान गर्न असमर्थ। कृपया आफ्नो इन्टरनेट जडान जाँच गर्नुहोस्।",
     errorLoadingProfile: "प्रोफाइल डाटा लोड गर्न असफल",
     selectCity: "शहर छान्नुहोस्",
+    faqs: "प्रायः सोधिने प्रश्नहरू",
+    contactUs: "सम्पर्क गर्नुहोस्",
+    help: "सहायता र समर्थन",
+    comingSoon: "चाँडै आउँदैछ!",
+    phone: "फोन",
+    faq1Question: "म आफ्नो शहर कसरी परिवर्तन गर्न सक्छु?",
+    faq1Answer:
+      "तपाईं प्रोफाइल > सम्पादन > शहर मा गएर र ड्रपडाउन सूचीबाट नयाँ शहर चयन गरेर आफ्नो शहर परिवर्तन गर्न सक्नुहुन्छ।",
+    faq2Question: "म आफ्नो जन्म मिति कसरी परिवर्तन गर्न सक्छु?",
+    faq2Answer:
+      "आफ्नो जन्म मिति परिवर्तन गर्न, प्रोफाइल > सम्पादन > जन्म मिति मा जानुहोस् र क्यालेन्डर पिकरबाट आफ्नो नयाँ मिति चयन गर्नुहोस्।",
+    faq3Question: "म आफ्नो नाम कसरी परिवर्तन गर्न सक्छु?",
+    faq3Answer:
+      "तपाईं प्रोफाइल > सम्पादन > नाम मा नेभिगेट गरेर र पाठ फिल्डमा आफ्नो नयाँ नाम प्रविष्ट गरेर आफ्नो नाम अपडेट गर्न सक्नुहुन्छ।",
+    faq4Question: "म सूचनाहरू कसरी बन्द गर्न सक्छु?",
+    faq4Answer:
+      "सूचनाहरू बन्द गर्न, सेटिङहरू > सूचनाहरू मा जानुहोस् र स्विच बन्द स्थितिमा टगल गर्नुहोस्।",
+    more: "थप",
+    
   },
 };
 

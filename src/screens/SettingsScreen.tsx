@@ -8,7 +8,11 @@ import {
   TouchableOpacity,
   Modal,
   Dimensions,
+  Linking,
+  Alert,
 } from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
 import { theme } from "../theme";
 import { globalStyles } from "../styles/styles";
 import VehicleIcon from "../components/common/VehicleIcon";
@@ -18,6 +22,15 @@ import Icon from "react-native-vector-icons/Ionicons";
 import { useTheme } from "../contexts/ThemeContext";
 import { useLanguage } from "../contexts/LanguageContext";
 
+// Define the navigation type
+type RootStackParamList = {
+  Auth: undefined;
+  MainApp: undefined;
+  FAQs: undefined;
+};
+
+type SettingsScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+
 const SettingsScreen: React.FC = () => {
   const [notifications, setNotifications] = React.useState(true);
   const [locationSharing, setLocationSharing] = React.useState(true);
@@ -26,6 +39,7 @@ const SettingsScreen: React.FC = () => {
 
   const { isDark, colors, themeMode, setTheme } = useTheme();
   const { currentLanguage, setLanguage, t, availableLanguages } = useLanguage();
+  const navigation = useNavigation<SettingsScreenNavigationProp>();
 
   // Only keeping light mode option since dark mode is disabled
   const themeOptions = [
@@ -60,6 +74,16 @@ const SettingsScreen: React.FC = () => {
   const handleLanguageChange = (languageCode: string) => {
     setLanguage(languageCode);
     setLanguageModalVisible(false);
+  };
+
+  const openFAQ = () => {
+    // Replace with your FAQ link
+    Linking.openURL("https://your-faq-link.com");
+  };
+
+  const openContactUs = () => {
+    // Replace with your Contact Us link
+    Linking.openURL("https://your-contact-link.com");
   };
 
   return (
@@ -188,6 +212,100 @@ const SettingsScreen: React.FC = () => {
                 thumbColor={colors.surface}
               />
             </View>
+          </View>
+
+          <View
+            style={[
+              styles.settingsSection,
+              { backgroundColor: "rgba(255, 255, 255, 0.9)" },
+            ]}
+          >
+            <Text style={[styles.sectionTitle, { color: colors.primary }]}>
+              {t("help")}
+            </Text>
+
+            {/* FAQs */}
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => {
+                // @ts-ignore - Navigate to the FAQs screen
+                navigation.navigate("FAQs");
+              }}
+            >
+              <View style={styles.settingInfo}>
+                <Icon
+                  name="help-circle-outline"
+                  size={24}
+                  color={colors.primary}
+                />
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  {t("faqs")}
+                </Text>
+              </View>
+              <View style={styles.settingValue}>
+                <Icon
+                  name="chevron-forward"
+                  size={20}
+                  color={colors.textSecondary}
+                />
+              </View>
+            </TouchableOpacity>
+
+            {/* Contact Us - Email */}
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => {
+                // Open email app with the specified email
+                Linking.openURL("mailto:kampanlabs@gmail.com");
+              }}
+            >
+              <View style={styles.settingInfo}>
+                <Icon name="mail-outline" size={24} color={colors.primary} />
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  {t("email")}
+                </Text>
+              </View>
+              <View style={styles.settingValue}>
+                <Text
+                  style={[styles.valueText, { color: colors.textSecondary }]}
+                >
+                  kampanlabs@gmail.com
+                </Text>
+                <Icon
+                  name="chevron-forward"
+                  size={20}
+                  color={colors.textSecondary}
+                />
+              </View>
+            </TouchableOpacity>
+
+            {/* Contact Us - Phone */}
+            <TouchableOpacity
+              style={styles.settingItem}
+              onPress={() => {
+                // Open phone dialer with the specified number
+                Linking.openURL("tel:+9779742539100");
+              }}
+            >
+              <View style={styles.settingInfo}>
+                <Icon name="call-outline" size={24} color={colors.primary} />
+                <Text style={[styles.settingText, { color: colors.text }]}>
+                  {t("phone")}
+                </Text>
+              </View>
+              <View style={styles.settingValue}>
+                <Text
+                  style={[styles.valueText, { color: colors.textSecondary }]}
+                >
+                  +977 9742539100
+                </Text>
+                <Icon
+                  name="chevron-forward"
+                  size={20}
+                  color={colors.textSecondary}
+                />
+              </View>
+            </TouchableOpacity>
           </View>
         </ScrollView>
 
@@ -587,6 +705,22 @@ const styles = StyleSheet.create({
   },
   checkmarkContainer: {
     marginLeft: 12,
+  },
+  additionalOptions: {
+    marginTop: 16,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(0, 0, 0, 0.1)",
+    paddingTop: 16,
+  },
+  additionalOptionItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+  },
+  additionalOptionText: {
+    fontSize: 16,
+    marginLeft: 12,
+    color: theme.colors.text,
   },
   // Legacy styles (keeping for backward compatibility)
   modalContent: {
